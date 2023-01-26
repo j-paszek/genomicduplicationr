@@ -1,19 +1,15 @@
 #!/usr/bin/python
 
 import sys
-from treeop import Tree, str2tree, node2label
+from treeop import Tree, str2tree,  node2label
 import getopt,itertools
-# re
-verbose=""
+
+verbose=0
 printstreewithscores=0
 
 def readintervalfile(filename):
 
-    try:
-        t=[ l.strip() for l in open(filename,"r").readlines() if len(l.strip()) and l.strip()[0]!='#' ]
-    except IOError as e:
-        print filename," I/O error({0}): {1}".format(e.errno, e.strerror)
-        quit()
+    t=[ l.strip() for l in open(filename,"r").readlines() if len(l.strip()) and l.strip()[0]!='#' ]
     
     if t[0][0].isdigit():
         gtnum=int(t[0])
@@ -25,7 +21,7 @@ def readintervalfile(filename):
     gtrees=[]
 
     for i in xrange(gtnum):
-        if verbose.find("0") <> -1:
+        if verbose == 3:
             print "Processing line ", t[i+offset]
         gtrees.append(Tree(str2tree(t[i+offset])))
     st=Tree(str2tree(t[i+1+offset]))
@@ -73,12 +69,13 @@ def readintervalfile(filename):
 def readgs(filename):
 
     t=[ l.strip() for l in open(filename,"r").readlines() if len(l.strip()) and l.strip()[0]!='#' ]
-    if verbose.find("0") <> -1:
+    if verbose == 3:
         print t
     #print str2tree(t[0])
     return Tree(str2tree(t[0])),Tree(str2tree(t[1]))
 
 def savegsi(gtrees,st,outputfile):
+
     f=open(outputfile,"w")
     f.write("%d\n"%len(gtrees))
     for gt in gtrees: 
@@ -118,7 +115,7 @@ def meropt(gtrees,st,prevminscore):
         if g.active: dup.append(g)
         g.visited=None
 
-    if verbose.find("2") <> -1:    
+    if verbose == 1:    
         print "Duplication Nodes",dup
 
     #print stnodespostorder
@@ -164,11 +161,11 @@ def meropt(gtrees,st,prevminscore):
             d.interval[1].duproots.append(d)   
 
 
-    if verbose.find("2") <> -1:
+    if verbose == 1:
         print "Nodes of T"
         for t in tdup: 
             print t
-            print "   Bt=",t.bt
+            print "   Bt=",t.bt,[ n.num for n in t.bt]
             print "   Gammat=",t.duproots
 
     def travduproots(r):
@@ -179,7 +176,7 @@ def meropt(gtrees,st,prevminscore):
         if r.r.active: h2=travduproots(r.r)
         return 1+max(h1,h2)
 
-    if verbose.find("2") <> -1:    
+    if verbose == 1:    
         print "Dup Leaves",ldup
 
     mescore=0
@@ -187,7 +184,7 @@ def meropt(gtrees,st,prevminscore):
 
     # Main loop
     for t in tdup:
-        if verbose.find("2") <> -1:        
+        if verbose == 1:        
             print "="*80        
             print "Processing",t        
             print "   Bt=",t.bt        
@@ -198,7 +195,7 @@ def meropt(gtrees,st,prevminscore):
         for r in t.duproots:
             if r.active:
                 k=max(k,travduproots(r))
-        if verbose.find("2") <> -1:        
+        if verbose == 1:        
             print "   k=",k
 
         if k>0: 
@@ -209,7 +206,7 @@ def meropt(gtrees,st,prevminscore):
     
         cand=[]
         if k<0:
-            if verbose.find("2") <> -1:            
+            if verbose == 1:            
                 for l in t.bt:
                     print "Moving from orhpan dup leaf",l,l.active
             
@@ -219,23 +216,23 @@ def meropt(gtrees,st,prevminscore):
             #processing leaves from Bt, k>0 case 
             
             for l in t.bt:
-                if verbose.find("2") <> -1:                 
+                if verbose == 1:                 
                     print "Removing from dup leaf",l.num,l,l.active
                 curk=1
                 newcand=None
                 while curk<=k and not newcand:
                     l.visited=t
-                    if verbose.find("2") <> -1:                    
+                    if verbose == 1:                    
                         print "  Marking",l.num,l
                     if not l.parent: break # gene tree root 
 
                     l.h=curk
                     sib=l.sibling()
                     l=l.parent
-                    if verbose.find("2") <> -1:
+                    if verbose == 1:
                         print "  checking",l,l.num if l else "", # l.interval
                     if not l.active:
-                        if verbose.find("2") <> -1: 
+                        if verbose == 1: 
                             print "  not active"
                         break
                     if verbose == 1:
@@ -243,15 +240,15 @@ def meropt(gtrees,st,prevminscore):
                     
                     if l.interval[0].nearestt.lca(t)!=t or curk==k:
                         newcand=l
-                        if verbose.find("2") <> -1: print " cand. found",l
+                        if verbose == 1: print " cand. found",l
                         # stop
                     elif not sib.active:
                         curk+=1
-                        if verbose.find("2") <> -1: print "  sib is not active - cont",sib
+                        if verbose == 1: print "  sib is not active - cont",sib
                     elif sib.visited==t:
                         curk=max(curk,sib.h)+1                
                     else:
-                        if verbose.find("2") <> -1:                        
+                        if verbose == 1:                        
                             print "  sib not visited yet",sib
                         break
 
@@ -263,7 +260,7 @@ def meropt(gtrees,st,prevminscore):
                     l.active=0
                     l=l.parent
 
-        if verbose.find("2") <> -1:
+        if verbose == 1:
             print "Candidates",cand
         
 
@@ -271,37 +268,39 @@ def meropt(gtrees,st,prevminscore):
         for c in cand:
             if not c.l.active and not c.r.active:
                 if c.interval[0].nearestt.lca(t)==t:
-                    if verbose.find("2") <> -1:                    
+                    if verbose == 1:                    
                         print " cand ",c,"moved to (parentt)",t.parentt
                     t.parentt.bt.append(c)
                     #??? Nono (root T)?
                 else:
                     #if k<0: print "Dupablada"    
                     c.interval[0].nearestt.bt.append(c)
-                    if verbose.find("2") <> -1:                    
+                    if verbose == 1:                    
                         print " cand ",c,"moved to (>parentt)",c.interval[0].nearestt
                              
-        if verbose.find("2") <> -1:        
+        if verbose == 1:        
             print "Remaining dupl:"   
         for d in dup:
             if d.active:
-                if verbose.find("2") <> -1:                
+                if verbose == 1:                
                     print " ",d.num,d#,hasattr(d,'visited')
         if prevminscore>=0 and mescore>=prevminscore:
-            if verbose.find("4") <> -1: 
+            if verbose == 4: 
                 print "Skipping score ",mescore,"vs",prevminscore
                 return -1
             return mescore 
-    if verbose.find("3") <> -1: print "MEscore",mescore
+    if verbose == 2: print "MEscore",mescore
     return mescore
             
         
      
 
-ModLCA=1                # LCA model
-ModGuigo=2              # GMS model Guigo et al.
-ModPaszekGorecki=3      # PG model
-ModFellows=4            # FHS model Fellows et al.
+
+ModBansalEulenstein=1
+ModPaszekGorecki=2
+ModLCA=3
+ModRandom=4
+ModFellows=5
 
 from itertools import combinations,chain
 
@@ -321,12 +320,12 @@ def all_subsets(ss):
     return chain(*map(lambda x: combinations(ss, x), range(0, len(ss)+1)))
 
 def merfellows(gtrees,st):
-    global verbose 
+    global verbose
     lastopt=''
-    if verbose.find("3") <> -1:
+    if verbose ==4:
         print "@ Debug of Fellows model"
     specnodes=[ n for g in gtrees for n in g.root.nodes() if not n.leaf() and (n.lcamap!=n.l.lcamap and n.lcamap!=n.r.lcamap) ]
-    if verbose.find("3") <> -1:
+    if verbose == 4:
         # print "@ List of all speciation nodes before preprocessing",specnodes
         print "@ Number all speciation nodes before preprocessing",len(specnodes)  
     
@@ -342,30 +341,44 @@ def merfellows(gtrees,st):
         if hasdup: r.append(s)
     specnodes=r
 
+    if verbose ==4:
+        print "@ List of all speciation nodes",specnodes
+        print "@ Number of all speciation nodes",len(specnodes)        
+        #quit()
+
 
 
     subnodes=[]
+    # autodupsnum=[66, 85, 91, 106, 186, 208, 204, 69, 243, 247, 254, 258, 253, 270, 268, 307, 293, 300]
+    # # HACK dla 490
+    # for i,g in enumerate(gtrees):
+    #     for n in g.nodes:
+    #         if n.num in autodupsnum: 
+    #              subnodes.extend(n.nodes())
+    # autodups=[ n for n in specnodes if n in subnodes ]
+    # specnodes=[ n for n in specnodes if n not in subnodes ]
 
-    if verbose.find("3") <> -1: 
+
+    # #HACK dla 1257
+    # for i,g in enumerate(gtrees):
+    #     for n in g.nodes:
+    #         if n.lcamap.num==39: # should be <= 39
+    #             subnodes.extend(n.nodes())
+    # autodups=[ n for n in specnodes if n in subnodes ]
+    # specnodes=[ n for n in specnodes if n not in subnodes ]
+    # #END OF HACK
+
+    if verbose ==2: 
         print "Found ",len(specnodes),"speciation nodes"
-
-    if verbose.find("5") <> -1: 
         print "@ List of all speciation nodes",specnodes
 
     maxdup=0
     alldupscore=0
     pompom=None
     pom=None
-    pompomnum=0
-    pomnum=0
-    maxmaxdup=0
-    change=False
-    eq = False
 
     for i,g in enumerate(gtrees):
         maxh=maxc=-1
-        change = False
-        eq = False
         for n in g.root.nodes():
             if n.leaf():
                 c=0
@@ -374,72 +387,192 @@ def merfellows(gtrees,st):
                     if not n.leaf() and (n.lcamap==n.l.lcamap or n.lcamap==n.r.lcamap):
                         c=c+1                    
                     n=n.parent
-            if c > maxdup: change = True
-            if c == maxmaxdup: eq = True                    
+            if c > maxdup: pom = g
             maxdup=max(maxdup,c)
             maxc=max(c,maxc)
-        if change:
-            maxmaxdup = maxdup
-            pom = g
-            pomnum = 0
-        if eq and not change:
-            pomnum = pomnum + 1            
-        if alldupscore < g.height(): 
-            pompom = g
-            pompomnum = 0
-        if alldupscore == g.height(): pompomnum = pompomnum + 1    
+        if alldupscore < g.height(): pompom = g
         alldupscore=max(alldupscore,g.height())
-        if verbose.find("6") <> -1:      
+        if verbose ==6:      
             print i,maxh,maxc
 
-    if verbose.find("1") <> -1: 
-        print "Lower bound for ME score:",maxdup
-        print "Lower bound tree:",pom
-        print "Upper bound for ME score:",alldupscore
-        print "Upper bound tree:",pompom
-        if pom==pompom:
-            if (pompomnum == 0) and (pomnum == 0):
-                print "Unique tree G*. Unique tree which infers lower bound. Unique tree which infers upper bound."
+    if verbose ==2: 
+        print "Bottom limit for ME score:",maxdup
+        print "Bottom limit tree:",pom
+        print "AllDupScore:",alldupscore
+        print "AllDup tree:",pompom
+        #if pom==pompom:
+        #    print " Its the same tree !!!"
+        # quit()
 
-    if verbose.find("8") <> -1: 
-        print "Species tree"
-        print str(st)
-        for n in st.root.nodes():
-            print "#%d %s\n"%(n.num,n)
-        print "Speciation nodes after preprocessing from gene trees (number of node; number of lca-maped node in species tree; node)"
-        for g in specnodes:
-                print "#%d #%d %s\n"%(g.num,g.lcamap.num,g)
+    if verbose ==6:
+        #mer.py -F -j 1257,1 -v6 -e in.txt
+        #w treefam
 
-    if delnodes:
-        print "@ List of all speciation nodes",specnodes
-        print "@ Number of all speciation nodes",len(specnodes)
-        print "Removing ",delnodes
-        ll = delnodes.replace("[","").replace("]","").replace(",","") # strip('[],').split()
-        for i,g in enumerate(gtrees):
-            for n in g.nodes:
-                if str(n.num) in ll.split(): 
-                    subnodes.extend(n.nodes())
-        print subnodes            
-        autodups=[ n for n in specnodes if n in subnodes ]
-        specnodes=[ n for n in specnodes if n not in subnodes ]
-        print "@ List of all speciation nodes",specnodes
-        print "@ Number of all speciation nodes",len(specnodes)
+        if len(gtrees)>10: 
+            print "too many trees"
+            sys.exit(-1)  # stop    
+
+        def ptree(t):
+            if t.leaf(): 
+                t.lf=1
+
+                return
+            if t.lcamap==t.l.lcamap or t.lcamap==t.r.lcamap:
+                t.lf=0
+                t.lcamap.ds|=1                
+            elif t in specnodes:
+                t.lcamap.ds|=2 
+                t.lf=0 
+            else: t.lf=1
+            if not t.lf:
+                ptree(t.l)
+                ptree(t.r)
+
+        def ppniceold(t,isst): # up to two marks in S
+            
+            l=''
+            dp=0
+            if not isst:
+
+                if t.leaf(): 
+                    return "lw=0.2 s=\"%s\" :0.0"%t.clusterleaf
+                if (t.lcamap==t.l.lcamap or t.lcamap==t.r.lcamap):
+                    l="mark=d%d nn=\"%d\""%(t.lcamap.num,t.num)
+                    dp=1
+                if t in specnodes:
+                    l="mark=s%d nn=\"%d\""%(t.lcamap.num,t.num)
+                                
+                if not l:
+                    #return "mark=94 :0.3"#%(t.num,t.num)
+                    return ":0.0"#+("mark=100" if t.lf else "")
+                    l="mark=s%d "%t.lcamap.num
+                    t.lcamap.ds|=2        
+                    return l+"s=''" #\"%d\""%t.lcamap.num
+            
+                #x=" s=\"!R!%d \""%t.lcamap.num
+                x=''
+            
+                if t.lcamap.leaf() and dp==1:
+                    if t.r.stheight>t.l.stheight:
+                        return "("+ppniceold(t.r,isst)+")"+l
+                    return "("+ppniceold(t.l,isst)+")"+l
+            else:                 
+                if t.ds==3: x=" mark=[d%d,s%d] "%(t.num,t.num)
+                elif t.ds==2: x=" mark=[s%d] "%t.num
+                elif t.ds==1: x=" mark=[d%d] "%t.num
+                else: x=''
+                x=x+" nn=\"%d\""%t.num
+                
+                if t.leaf(): return x+" s=\"%s\""%t.clusterleaf
+                #else: x=x+" s=\"!R!%d \""%(t.num)
+            if t.l.lf:
+                return "("+ppniceold(t.r,isst)+") "+l+x
+            elif t.r.lf: 
+                return "("+ppniceold(t.l,isst)+") "+l+x
+            return "("+ppniceold(t.l,isst)+","+ppniceold(t.r,isst)+") "+l+x
 
 
-    if verbose.find("7") <> -1: 
-        print "Found ",len(specnodes),"speciation nodes"
-        if len(specnodes) > 20:
-            quit()
+
+        def ppnice(t,isst): # single mark in S
+            
+            l=''
+            dp=0
+            maxmark=29*3
+            if not isst:
+
+                if t.leaf(): 
+                    return "lw=0.2 s=\"%s\" :0.0"%t.clusterleaf
+                if (t.lcamap==t.l.lcamap or t.lcamap==t.r.lcamap):
+                    l="mark=d%d nn=\"%d\""%(t.lcamap.num,t.num)
+                    t.lcamap.ds|=1
+                    dp=1
+                if t in specnodes:
+                    l="mark=s%d nn=\"%d\""%(t.lcamap.num,t.num)
+                    t.lcamap.ds|=2
+            
+                if not l:
+                    #return "mark=94 :0.3"#%(t.num,t.num)
+                    return ":0.0"#+("mark=100" if t.lf else "")
+                    
+                x=''
+            
+                if t.lcamap.leaf() and dp==1:
+                    if t.r.stheight>t.l.stheight:
+                        return "("+ppnice(t.r,isst)+")"+l
+                    return "("+ppnice(t.l,isst)+")"+l
+            else:                 
+                if t.ds==3: x=" mark=[d%d,s%d] "%(t.num,t.num)
+                elif t.ds==2: x=" mark=s%d "%(t.num)
+                elif t.ds==1: x=" mark=d%d "%t.num
+                else: x=''
+                x=x+" nn=\"%d\""%t.num
+                
+                if t.leaf(): return x+" s=\"%s\""%t.clusterleaf
+                #else: x=x+" s=\"!R!%d \""%(t.num)
+            if t.l.lf:
+                return "("+ppnice(t.r,isst)+") "+l+x
+            elif t.r.lf: 
+                return "("+ppnice(t.l,isst)+") "+l+x
+            return "("+ppnice(t.l,isst)+","+ppnice(t.r,isst)+") "+l+x
+        f=open("dup.gse","w")
+        f.write("""
+.run -dm
+leafline=5
+treestyle=2
+lcamapping=0
+evalpos=3
+rotateleaves=90
+gene.scale=(0.6,.6)
+species.scale=(0.7,.7)
+multimarkalign='c'
+mapsep=-5
+lw=0.7
+gene.leaflabellen=1
+species.leaflabellen=55
+species.nodelabels=["s"]
+gene.nodelabels=["z"]
+markscheme="rgb W G"
+showleaves=1
+mapbymarks=1
+marksize=1.0
+""")
+        for n in st.nodes: 
+            n.ds=0
+            n.lf=0
+            n.sp=n.dp=0
+        for g in gtrees:
+            for n in g.nodes: n.lf=0       
+            ptree(g.root)
+            cnt=0
+            for n in st.nodes:
+                if n.ds or n.sp: 
+                    n.marknum=cnt
+                    cnt+=1
+            f.write("&g %s\n"%ppnice(g.root,0))            
+        f.write("&s %s\n"%ppnice(st.root,1))
+        cnt=0
+        maxmark=29*3
+        for n in st.nodes: 
+            if n.ds&1: 
+                f.write("d%d=%d\n"%(n.num,n.marknum))
+            if n.ds&2: 
+                f.write("s%d=%d\n"%(n.num,n.marknum+maxmark))
+                
+
+        # print "Dupnodesmap:",cnt,"Specnodesmap",scnt-23*3
+
+        f.close()
 
 
+        print "File dup.gse saved"
 
-
+        quit() 
     mescore=sum(len(gt.nodes) for gt in gtrees)+1
     first=1
     cnt=0
     for ss in all_subsets(specnodes):
     #for ss in [ specnodes ]:
-        if verbose.find("3") <> -1:
+        if verbose ==4:
             print "@ Subset of speciation nodes enabled for a change into duplication nodes",ss
         ss=list(ss)
         s = [n for n in specnodes if n not in ss ]
@@ -454,15 +587,14 @@ def merfellows(gtrees,st):
 
         for n in s: n.interval=[n.lcamap,None]
 
-        #HACK - given nodes deleted from SPEC, are automatically converted into duplications
-        if delnodes:
-            for n in autodups: n.interval=[n.lcamap,None]
+        #HACK
+        for n in autodups: n.interval=[n.lcamap,None]
 
 
         for gt in gtrees:
             expandintervals(gt,st)
 
-        if verbose.find("6") <> -1:
+        if verbose == 4 :
             print "@ List of all intervals (spec->dup node intervals are extended)"        
             for gt in gtrees:            
                 for n in gt.nodes:                
@@ -476,9 +608,9 @@ def merfellows(gtrees,st):
         else:
             m=meropt(gtrees,st,mescore)
         if m>-1: 
-            if verbose.find("3") <> -1: print "%d. MEcurrent"%cnt,m,mescore
+            if verbose ==4: print "%d. MEcurrent"%cnt,m,mescore
             if mescore>m:
-                oldverbose,verbose=verbose,"1"
+                oldverbose,verbose=verbose,1
                 print "*"*80
                 print cnt, "REPEATED OPTIMAL COMP FOR ",m
                 meropt(gtrees,st,-1)                
@@ -526,7 +658,7 @@ def expandintervals(gt,st):
             n.interval[1]=top            
 
 
-def genGMSIntervals(gt,st):
+def genBansalEulensteinIntervals(gt,st):
     for n in gt.nodes:
         n.interval=None
         if n.leaf(): continue
@@ -536,6 +668,7 @@ def genGMSIntervals(gt,st):
 
     for n in gt.nodes:
         if not n.interval: continue
+        #if n.num==19: print "ASDADA",n
         if not n.parent:  # root
             n.interval[1]=st.root
             continue        
@@ -548,8 +681,11 @@ def genGMSIntervals(gt,st):
         
 
         while top.parent!=n.parent.lcamap:
+            #if n.num==19: 
+            #    print "-----",top,n.lcamap,n.parent.lcamap
             top=top.parent
-
+        #if n.num==19: 
+            #print "--LAST",top,n.lcamap,n.parent.lcamap
         n.interval[1]=top            
 
 
@@ -559,29 +695,92 @@ def genGMSIntervals(gt,st):
 
 def usage():
     print "Usage:"
+    print " -e             - execute ME algorithm for rooted trees"
     print " ********    MODELS OF GENERATING VALID MAPPINGS INTERVALS           ******** "
     print " -L             - lca-mapping model of valid mappings (least flexible)  "  
-    print " -G             - GMS model of valid mappings"
-    print " -P             - PG model of valid mappings"
-    print " -F             - FHS model of valid mappings"
+    print " -E             - Bansal Eulenstein model of valid mappings"
+    print " -P             - Paszek Gorecki model of valid mappings"
+    print " -R             - random model of valid mappings (most flexible; assumptions: monotonicity and partial order)"
+    print " -F             - Fellows model"
     print " ********    INPUT                                                   ********  "
     print "                - default argument is an input file (gene tree, species tree, intervals)"
     print " * note: please set model how to generate itervals and give both input species tree and gene tree *"
-    print " -g TREE        - to define input gene tree"
-    print " -s TREE        - to define input species treee"
+    print " -g TREE        - to define input gene tree file"
+    print " -s TREE        - to define input species tree file"
     print " -p 'TREE TREE' - to give pair gene tree, species tree"
     print " -m FILE        - defines a set of gene trees"
     print " -j NUMTREE,LEN - skip first NUMTREE trees and take next LEN trees; missing LEN=all trees"    
+    print " r NUMLEAVES:   - to generate randomly gene tree, species tree "    
     print " -t             - for each gene tree print its height"
-    print " -k             - print ME score and a species tree with partial ME scores at corresponding nodes"
-    print " -i             - set intervals from file"    
+    print " -k             - print a species tree with ME scores" 
     print " ********    OUTPUT                                                  ******* "
     print " -o             - write to default output file"
     print " -O FILE        - write to user defined output file"
-    print " -v STRING      - verbose mode; (default) print ME score only; debug 0 - input/output; 1 - upper, lower bounds for ME score; 2 - detailed Alg.2 debug; 3 - Alg.3 debug; 4 - skipped scores;5 - print nodes from SPEC; 6 - more Alg.3 details; 7 - print size of SPEC and stops if > 22; 8 - print node number for species tree and speciations from SPEC; where SPEC is a set of all lca-speciation nodes (from input gene trees) which are ancestor of some duplication."
-    print " -d STRING      - list of node numbers to delete from SPEC and convert into duplications"
+    print " -v NUM         - verbose mode; 0 - (default) print ME score only; debug 1 - main algorithm; 2 - models; 3 - input/output"
     
 
+def ppgsevoloutput(gtrees,st):
+    f=open("mer.gse","w")
+    f.write("#!/home/gorecki/Dropbox/projects/htree/gsevol.py -x\n")
+    for i,gt in enumerate(gtrees):
+        f.write("""
+    
+####################################################
+# MAPPINGS FOR DL
+
+#exec:Mappings for DL: -dDPm
+outputfile='%d.map'
+
+#colonsep
+
+mapprops=[
+('green',0,0,0.5,'') ,
+('blue',0,0,0.5,'') ,
+('red',0,1,0.5,'') ,
+('green',0,0,0.5,'') ,
+('blue',0,0,0.5,'') ,
+];
+
+#colonsep
+
+lw=0.7
+resolution=2
+crval=0.45
+dotsep=1.4
+crvbe=0.15
+arrowlength=0.2
+mapleaves=0
+mapinternal=1
+rootedgelen=0.3
+gtscaleto=(30,100)
+stscaleto=(50,10)
+scale=(0.6,0.7)
+mappict=1
+mapduponly=1
+sep=40
+margin=15
+maplw=0.4
+leaflabels=1
+nodelabels=['total','leaflabel']
+extsyntax=1
+rotateleaves=0
+fillstyle=SOLID
+mapdot=1
+treestyle=1
+evalpos=4
+
+tableonly=1
+table=[20,4] 
+
+&g %s
+&s %s 
+
+
+"""%(i,gt,st))
+
+    f.close()
+
+    
 def readgtreefile(gtreefile):
 
     gtrees=[]
@@ -598,7 +797,7 @@ def main():
      # parse command line options
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ktm:ep:j:g:s:FPGLioO:hv:d:", ["help", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "ktGm:ep:j:g:s:r:FEPLRoO:hv:", ["help", "output="])
     except getopt.GetoptError as err:
         print str(err) 
         usage()
@@ -607,27 +806,28 @@ def main():
         print "Usage: [-e] [-p] [-r] inputfile"
         sys.exit(1)
 
-    model=3 # default PG model
+    model=0
     stree = None
     gtrees = []
     gt=st=None
-    global verbose,printstreewithscores,delnodes
+    global verbose,printstreewithscores
 
     outputfile=None
-    runmer=1 # default run
+    runmer=0
     gtreefile=None
+    ppgsevol=0
     firstgtrees=-1
     numtrees=-1
     ppheight=0
-    delnodes=""
     printstreewithscores=0
     for o, a in opts:
         if o == "-s":
             st = Tree(str2tree(a)) 
+        elif o == "-r":
+            st=Tree(randtree(int(a)))
+            gtrees.append(Tree(randtree(int(a))))
         elif o == "-v":
-            verbose=str(a)
-        elif o == "-d":
-            delnodes=str(a)
+            verbose=int(a)
         elif o == "-p":
             gtree,stree=a.strip().split(" ")
             gtrees.append(Tree(str2tree(gtree)))
@@ -638,17 +838,16 @@ def main():
             
         elif o == "-m":
             gtreefile=a 
-        elif o == "-i":
-            model=0
-
 
         elif o == "-t":
             ppheight=1
-        elif o == "-G":
-            model=ModGuigo
+        elif o == "-E":
+            model=ModBansalEulenstein
         elif o == "-P":
             model=ModPaszekGorecki
 
+        elif o == "-R":
+            model=ModRandom
         elif o == "-L":
             model=ModLCA
         elif o == "-F": 
@@ -658,11 +857,15 @@ def main():
         elif o =="-O":
             outputfile=a
 
+        elif o=="-e":
+            runmer=1
         elif o=="-j":
             if "," in a: firstgtrees,numtrees=int(a.split(",")[0]),int(a.split(",")[1])
             else: firstgtrees,numtrees=int(a),-1
 
 
+        elif o=="-G":
+            ppgsevol=1
         elif o=="-k":
             printstreewithscores=1
             
@@ -704,8 +907,10 @@ def main():
     for gt in gtrees:  
         if model==ModPaszekGorecki:
             genPaszeGoreckiIntervals(gt,st)
-        elif model==ModGuigo:
-            genGMSIntervals(gt,st)
+        elif model==ModBansalEulenstein:
+            genBansalEulensteinIntervals(gt,st)
+        elif model==ModRandom:  # czabarka - int. monotoniczne
+            genRandomIntervals(gt,st)
         elif model==ModLCA:
             genLCAIntervals(gt,st)
 
@@ -716,6 +921,11 @@ def main():
 
     if outputfile: 
         savegsi(gtrees,st,outputfile)
+
+    if ppgsevol:
+        ppgsevoloutput(gtrees,st)
+        print "htree output generated"
+
 
     if verbose == 3:     
         for i,gt in enumerate(gtrees):        
