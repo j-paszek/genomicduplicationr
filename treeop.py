@@ -222,7 +222,7 @@ class Tree:
         return self.root.__str__()
 
   
-    def setlcamapping(self,st):
+    def set_lca_mapping(self,st):
         for l in self.leaves():
             clu=l.clusterleaf
             l.lcamap=None

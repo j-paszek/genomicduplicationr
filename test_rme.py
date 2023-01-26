@@ -23,11 +23,11 @@ def test_mer(inf,model,res):
 
     if model:
         for gt in gtrees:
-            gt.setlcamapping(st)
+            gt.set_lca_mapping(st)
 
     for gt in gtrees:
         if model==ModPaszekGorecki:
-            rme.genPaszeGoreckiIntervals(gt,st)
+            rme.genPaszekGoreckiIntervals(gt,st)
         elif model==ModGuigo:
             rme.genGMSIntervals(gt,st)
         elif model==ModLCA:
