@@ -20,9 +20,9 @@ def readintervalfile(filename):
     
     gtrees=[]
 
-    for i in xrange(gtnum):
+    for i in range(gtnum):
         if verbose == 3:
-            print "Processing line ", t[i+offset]
+            print("Processing line ", t[i+offset])
         gtrees.append(Tree(str2tree(t[i+offset])))
     st=Tree(str2tree(t[i+1+offset]))
 
@@ -30,7 +30,7 @@ def readintervalfile(filename):
 
     oldgtnum=-1
    
-    for i in xrange(i+2+offset,len(t)):
+    for i in range(i+2+offset,len(t)):
     
         gtnum,gc,sc,l=t[i].replace("+"," +").split(";")
         l=int(l)
@@ -70,7 +70,7 @@ def readgs(filename):
 
     t=[ l.strip() for l in open(filename,"r").readlines() if len(l.strip()) and l.strip()[0]!='#' ]
     if verbose == 3:
-        print t
+        print(t)
     #print str2tree(t[0])
     return Tree(str2tree(t[0])),Tree(str2tree(t[1]))
 
@@ -97,7 +97,7 @@ def savegsi(gtrees,st,outputfile):
 
 
     f.close()
-    print "File %s saved"%outputfile
+    print("File %s saved"%outputfile)
 
 
 def mer(gtrees,st):
@@ -116,7 +116,7 @@ def meropt(gtrees,st,prevminscore):
         g.visited=None
 
     if verbose == 1:    
-        print "Duplication Nodes",dup
+        print("Duplication Nodes",dup)
 
     #print stnodespostorder
     
@@ -162,11 +162,11 @@ def meropt(gtrees,st,prevminscore):
 
 
     if verbose == 1:
-        print "Nodes of T"
+        print("Nodes of T")
         for t in tdup: 
-            print t
-            print "   Bt=",t.bt,[ n.num for n in t.bt]
-            print "   Gammat=",t.duproots
+            print(t)
+            print("   Bt=",t.bt,[ n.num for n in t.bt])
+            print("   Gammat=",t.duproots)
 
     def travduproots(r):
         if r.leaf(): return 1
@@ -177,7 +177,7 @@ def meropt(gtrees,st,prevminscore):
         return 1+max(h1,h2)
 
     if verbose == 1:    
-        print "Dup Leaves",ldup
+        print("Dup Leaves",ldup)
 
     mescore=0
 
@@ -185,10 +185,10 @@ def meropt(gtrees,st,prevminscore):
     # Main loop
     for t in tdup:
         if verbose == 1:        
-            print "="*80        
-            print "Processing",t        
-            print "   Bt=",t.bt        
-            print "   Gammat=",t.duproots
+            print("="*80)
+            print("Processing",t)
+            print("   Bt=",t.bt)
+            print("   Gammat=",t.duproots)
 
         
         k=-1        
@@ -196,7 +196,7 @@ def meropt(gtrees,st,prevminscore):
             if r.active:
                 k=max(k,travduproots(r))
         if verbose == 1:        
-            print "   k=",k
+            print("   k=",k)
 
         if k>0: 
             mescore+=k
@@ -208,7 +208,7 @@ def meropt(gtrees,st,prevminscore):
         if k<0:
             if verbose == 1:            
                 for l in t.bt:
-                    print "Moving from orhpan dup leaf",l,l.active
+                    print("Moving from orhpan dup leaf",l,l.active)
             
             t.parentt.bt.extend(t.bt)
 
@@ -217,39 +217,39 @@ def meropt(gtrees,st,prevminscore):
             
             for l in t.bt:
                 if verbose == 1:                 
-                    print "Removing from dup leaf",l.num,l,l.active
+                    print("Removing from dup leaf",l.num,l,l.active)
                 curk=1
                 newcand=None
                 while curk<=k and not newcand:
                     l.visited=t
                     if verbose == 1:                    
-                        print "  Marking",l.num,l
+                        print("  Marking",l.num,l)
                     if not l.parent: break # gene tree root 
 
                     l.h=curk
                     sib=l.sibling()
                     l=l.parent
                     if verbose == 1:
-                        print "  checking",l,l.num if l else "", # l.interval
+                        print("  checking",l,l.num if l else "") # l.interval
                     if not l.active:
                         if verbose == 1: 
-                            print "  not active"
+                            print("  not active")
                         break
                     if verbose == 1:
-                        print l.interval
+                        print(l.interval)
                     
                     if l.interval[0].nearestt.lca(t)!=t or curk==k:
                         newcand=l
-                        if verbose == 1: print " cand. found",l
+                        if verbose == 1: print(" cand. found",l)
                         # stop
                     elif not sib.active:
                         curk+=1
-                        if verbose == 1: print "  sib is not active - cont",sib
+                        if verbose == 1: print("  sib is not active - cont",sib)
                     elif sib.visited==t:
                         curk=max(curk,sib.h)+1                
                     else:
                         if verbose == 1:                        
-                            print "  sib not visited yet",sib
+                            print("  sib not visited yet",sib)
                         break
 
                 if newcand: cand.append(newcand)
@@ -261,7 +261,7 @@ def meropt(gtrees,st,prevminscore):
                     l=l.parent
 
         if verbose == 1:
-            print "Candidates",cand
+            print("Candidates",cand)
         
 
         # processing bt candidates
@@ -269,27 +269,27 @@ def meropt(gtrees,st,prevminscore):
             if not c.l.active and not c.r.active:
                 if c.interval[0].nearestt.lca(t)==t:
                     if verbose == 1:                    
-                        print " cand ",c,"moved to (parentt)",t.parentt
+                        print(" cand ",c,"moved to (parentt)",t.parentt)
                     t.parentt.bt.append(c)
                     #??? Nono (root T)?
                 else:
                     #if k<0: print "Dupablada"    
                     c.interval[0].nearestt.bt.append(c)
                     if verbose == 1:                    
-                        print " cand ",c,"moved to (>parentt)",c.interval[0].nearestt
+                        print(" cand ",c,"moved to (>parentt)",c.interval[0].nearestt)
                              
         if verbose == 1:        
-            print "Remaining dupl:"   
+            print("Remaining dupl:")
         for d in dup:
             if d.active:
                 if verbose == 1:                
-                    print " ",d.num,d#,hasattr(d,'visited')
+                    print(" ",d.num,d)#,hasattr(d,'visited')
         if prevminscore>=0 and mescore>=prevminscore:
             if verbose == 4: 
-                print "Skipping score ",mescore,"vs",prevminscore
+                print("Skipping score ",mescore,"vs",prevminscore)
                 return -1
             return mescore 
-    if verbose == 2: print "MEscore",mescore
+    if verbose == 2: print("MEscore",mescore)
     return mescore
             
         
@@ -323,11 +323,11 @@ def merfellows(gtrees,st):
     global verbose
     lastopt=''
     if verbose ==4:
-        print "@ Debug of Fellows model"
+        print("@ Debug of Fellows model")
     specnodes=[ n for g in gtrees for n in g.root.nodes() if not n.leaf() and (n.lcamap!=n.l.lcamap and n.lcamap!=n.r.lcamap) ]
     if verbose == 4:
         # print "@ List of all speciation nodes before preprocessing",specnodes
-        print "@ Number all speciation nodes before preprocessing",len(specnodes)  
+        print("@ Number all speciation nodes before preprocessing",len(specnodes))
     
     r=[]
     for s in specnodes:
@@ -342,8 +342,8 @@ def merfellows(gtrees,st):
     specnodes=r
 
     if verbose ==4:
-        print "@ List of all speciation nodes",specnodes
-        print "@ Number of all speciation nodes",len(specnodes)        
+        print("@ List of all speciation nodes",specnodes)
+        print("@ Number of all speciation nodes",len(specnodes))
         #quit()
 
 
@@ -369,8 +369,8 @@ def merfellows(gtrees,st):
     # #END OF HACK
 
     if verbose ==2: 
-        print "Found ",len(specnodes),"speciation nodes"
-        print "@ List of all speciation nodes",specnodes
+        print("Found ",len(specnodes),"speciation nodes")
+        print("@ List of all speciation nodes",specnodes)
 
     maxdup=0
     alldupscore=0
@@ -393,13 +393,13 @@ def merfellows(gtrees,st):
         if alldupscore < g.height(): pompom = g
         alldupscore=max(alldupscore,g.height())
         if verbose ==6:      
-            print i,maxh,maxc
+            print(i,maxh,maxc)
 
     if verbose ==2: 
-        print "Bottom limit for ME score:",maxdup
-        print "Bottom limit tree:",pom
-        print "AllDupScore:",alldupscore
-        print "AllDup tree:",pompom
+        print("Bottom limit for ME score:",maxdup)
+        print("Bottom limit tree:",pom)
+        print("AllDupScore:",alldupscore)
+        print("AllDup tree:",pompom)
         #if pom==pompom:
         #    print " Its the same tree !!!"
         # quit()
@@ -409,7 +409,7 @@ def merfellows(gtrees,st):
         #w treefam
 
         if len(gtrees)>10: 
-            print "too many trees"
+            print("too many trees")
             sys.exit(-1)  # stop    
 
         def ptree(t):
@@ -564,7 +564,7 @@ marksize=1.0
         f.close()
 
 
-        print "File dup.gse saved"
+        print("File dup.gse saved")
 
         quit() 
     mescore=sum(len(gt.nodes) for gt in gtrees)+1
@@ -573,7 +573,7 @@ marksize=1.0
     for ss in all_subsets(specnodes):
     #for ss in [ specnodes ]:
         if verbose ==4:
-            print "@ Subset of speciation nodes enabled for a change into duplication nodes",ss
+            print("@ Subset of speciation nodes enabled for a change into duplication nodes",ss)
         ss=list(ss)
         s = [n for n in specnodes if n not in ss ]
         #print len(s)  
@@ -595,35 +595,35 @@ marksize=1.0
             expandintervals(gt,st)
 
         if verbose == 4 :
-            print "@ List of all intervals (spec->dup node intervals are extended)"        
+            print("@ List of all intervals (spec->dup node intervals are extended)")
             for gt in gtrees:            
                 for n in gt.nodes:                
                     if n.interval:                    
-                        print "Node ",n," interval ",n.interval     
+                        print("Node ",n," interval ",n.interval)
         
         if first:
             m=mescore=mer(gtrees,st)
             first=0
-            print "Current score",m
+            print("Current score",m)
         else:
             m=meropt(gtrees,st,mescore)
         if m>-1: 
-            if verbose ==4: print "%d. MEcurrent"%cnt,m,mescore
+            if verbose ==4: print("%d. MEcurrent"%cnt,m,mescore)
             if mescore>m:
                 oldverbose,verbose=verbose,1
-                print "*"*80
-                print cnt, "REPEATED OPTIMAL COMP FOR ",m
+                print("*"*80)
+                print(cnt, "REPEATED OPTIMAL COMP FOR ",m)
                 meropt(gtrees,st,-1)                
                 lastopt=ppscores(st)
-                print "*"*80                
+                print("*"*80)
                 verbose=oldverbose
-                print "Current score",m
+                print("Current score",m)
             mescore=min(mescore,m)
         cnt=cnt+1
-        if cnt%1000==0: print cnt,"variants processed; current min",mescore,"last score",m
+        if cnt%1000==0: print(cnt,"variants processed; current min",mescore,"last score",m)
         #if cnt==5000: quit()
-    if printstreewithscores: print "&s",lastopt
-    else: print "MEscore",mescore
+    if printstreewithscores: print("&s",lastopt)
+    else: print("MEscore",mescore)
     return mescore
 
     
@@ -658,7 +658,7 @@ def expandintervals(gt,st):
             n.interval[1]=top            
 
 
-def genBansalEulensteinIntervals(gt,st):
+def genGMSIntervals(gt,st):
     for n in gt.nodes:
         n.interval=None
         if n.leaf(): continue
@@ -694,29 +694,29 @@ def genBansalEulensteinIntervals(gt,st):
 
 
 def usage():
-    print "Usage:"
-    print " -e             - execute ME algorithm for rooted trees"
-    print " ********    MODELS OF GENERATING VALID MAPPINGS INTERVALS           ******** "
-    print " -L             - lca-mapping model of valid mappings (least flexible)  "  
-    print " -E             - Bansal Eulenstein model of valid mappings"
-    print " -P             - Paszek Gorecki model of valid mappings"
-    print " -R             - random model of valid mappings (most flexible; assumptions: monotonicity and partial order)"
-    print " -F             - Fellows model"
-    print " ********    INPUT                                                   ********  "
-    print "                - default argument is an input file (gene tree, species tree, intervals)"
-    print " * note: please set model how to generate itervals and give both input species tree and gene tree *"
-    print " -g TREE        - to define input gene tree file"
-    print " -s TREE        - to define input species tree file"
-    print " -p 'TREE TREE' - to give pair gene tree, species tree"
-    print " -m FILE        - defines a set of gene trees"
-    print " -j NUMTREE,LEN - skip first NUMTREE trees and take next LEN trees; missing LEN=all trees"    
-    print " r NUMLEAVES:   - to generate randomly gene tree, species tree "    
-    print " -t             - for each gene tree print its height"
-    print " -k             - print a species tree with ME scores" 
-    print " ********    OUTPUT                                                  ******* "
-    print " -o             - write to default output file"
-    print " -O FILE        - write to user defined output file"
-    print " -v NUM         - verbose mode; 0 - (default) print ME score only; debug 1 - main algorithm; 2 - models; 3 - input/output"
+    print("Usage:")
+    print(" -e             - execute ME algorithm for rooted trees")
+    print(" ********    MODELS OF GENERATING VALID MAPPINGS INTERVALS           ******** ")
+    print(" -L             - lca-mapping model of valid mappings (least flexible)  ")
+    print(" -E             - Bansal Eulenstein model of valid mappings")
+    print(" -P             - Paszek Gorecki model of valid mappings")
+    print(" -R             - random model of valid mappings (most flexible; assumptions: monotonicity and partial order)")
+    print(" -F             - Fellows model")
+    print(" ********    INPUT                                                   ********  ")
+    print("                - default argument is an input file (gene tree, species tree, intervals)")
+    print(" * note: please set model how to generate itervals and give both input species tree and gene tree *")
+    print(" -g TREE        - to define input gene tree file")
+    print(" -s TREE        - to define input species tree file")
+    print(" -p 'TREE TREE' - to give pair gene tree, species tree")
+    print(" -m FILE        - defines a set of gene trees")
+    print(" -j NUMTREE,LEN - skip first NUMTREE trees and take next LEN trees; missing LEN=all trees")
+    print(" r NUMLEAVES:   - to generate randomly gene tree, species tree ")
+    print(" -t             - for each gene tree print its height")
+    print(" -k             - print a species tree with ME scores")
+    print(" ********    OUTPUT                                                  ******* ")
+    print(" -o             - write to default output file")
+    print(" -O FILE        - write to user defined output file")
+    print(" -v NUM         - verbose mode; 0 - (default) print ME score only; debug 1 - main algorithm; 2 - models; 3 - input/output")
     
 
 def ppgsevoloutput(gtrees,st):
@@ -799,11 +799,11 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ktGm:ep:j:g:s:r:FEPLRoO:hv:", ["help", "output="])
     except getopt.GetoptError as err:
-        print str(err) 
+        print(str(err))
         usage()
         sys.exit(2)
     if len(sys.argv)==1:
-        print "Usage: [-e] [-p] [-r] inputfile"
+        print("Usage: [-e] [-p] [-r] inputfile")
         sys.exit(1)
 
     model=0
@@ -883,11 +883,11 @@ def main():
 
     if ppheight:
         for gt in gtrees:
-            print gt.height(),gt
+            print(gt.height(),gt)
         if not st: sys.exit(0)
 
     if not st or not gtrees:
-        print "Both trees have to be defined"
+        print("Both trees have to be defined")
         usage()
         sys.exit(3)
 
@@ -908,7 +908,7 @@ def main():
         if model==ModPaszekGorecki:
             genPaszeGoreckiIntervals(gt,st)
         elif model==ModBansalEulenstein:
-            genBansalEulensteinIntervals(gt,st)
+            genGMSIntervals(gt, st)
         elif model==ModRandom:  # czabarka - int. monotoniczne
             genRandomIntervals(gt,st)
         elif model==ModLCA:
@@ -924,20 +924,20 @@ def main():
 
     if ppgsevol:
         ppgsevoloutput(gtrees,st)
-        print "htree output generated"
+        print("htree output generated")
 
 
     if verbose == 3:     
         for i,gt in enumerate(gtrees):        
             for g in gt.root.nodes():            
                 if g.interval:                
-                    print "Interval for %d in tree%d:"%(g.num,i),g,g.interval
+                    print("Interval for %d in tree%d:"%(g.num,i),g,g.interval)
 
         
     if runmer:
         me=mer(gtrees,st)
-        if printstreewithscores: print "&s",ppscores(st)
-        else: print "MEscore",me
+        if printstreewithscores: print("&s",ppscores(st))
+        else: print("MEscore",me)
 
 
     return 0

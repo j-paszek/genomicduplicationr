@@ -25,10 +25,10 @@ def theight(t,l):
 
 
 
-lfalf=[ chr(i) for i in xrange(ord('a'),ord('z')) ]+[ chr(i) for i in xrange(ord('A'),ord('Z')) ]
+lfalf=[ chr(i) for i in range(ord('a'),ord('z')) ]+[ chr(i) for i in range(ord('A'),ord('Z')) ]
 #lfalf="ABCDEF" #abcdyzghjiklmopqr123456"
 
-lfalf=[ chr(i) for i in xrange(ord('a'),ord('z')) ]+[ chr(i) for i in xrange(ord('A'),ord('Z')) ]
+lfalf=[ chr(i) for i in range(ord('a'),ord('z')) ]+[ chr(i) for i in range(ord('A'),ord('Z')) ]
 def ordext(c): 
     return lfalf.index(c)
 
@@ -55,7 +55,7 @@ def str2tree(s):
         return (r,p)
 
     if not s.strip():
-        print "Warning: empty string"
+        print("Warning: empty string")
         return []
     return _st(s,0)[0]
 
@@ -64,7 +64,7 @@ def node2label(n):
     return str(n).replace("("," ").replace(")"," ").replace(","," ")
 
 
-lfalf=[ chr(i) for i in xrange(ord('a'),ord('z')) ]+[ chr(i) for i in xrange(ord('A'),ord('Z')) ]
+lfalf=[ chr(i) for i in range(ord('a'),ord('z')) ]+[ chr(i) for i in range(ord('A'),ord('Z')) ]
 
 
 def getclusters(s):
@@ -190,7 +190,7 @@ class Tree:
 
         if self.srclist:
             l=self.root
-            for i in xrange(len(self.srclist)-1):
+            for i in range(len(self.srclist)-1):
                 #print "!",l
                 l.artificial=True
                 l=l.l
