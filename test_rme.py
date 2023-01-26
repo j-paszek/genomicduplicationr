@@ -1,4 +1,5 @@
 import pytest
+from iomod import readintervalfile
 import rme
 
 ModLCA=1                # LCA model
@@ -19,7 +20,7 @@ infiles = ["data/in.txt","data/in1.txt","data/in2.txt"]
                                            (infiles[1],1,9),(infiles[1],2,5),(infiles[1],3,5),
                                            (infiles[2],1,249),(infiles[2],2,243),(infiles[2],3,230)])
 def test_mer(inf,model,res):
-    gtrees, st = rme.readintervalfile(inf)
+    gtrees, st = readintervalfile(inf)
 
     if model:
         for gt in gtrees:
