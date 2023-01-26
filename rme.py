@@ -649,8 +649,6 @@ def main():
         elif o == "-P":
             model=ModPaszekGorecki
 
-        elif o == "-R":
-            model=ModRandom
         elif o == "-L":
             model=ModLCA
         elif o == "-F": 
