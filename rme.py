@@ -3,7 +3,7 @@
 import sys
 from treeop import Tree, str2tree, node2label
 import getopt,itertools
-# r
+# re
 verbose=""
 printstreewithscores=0
 
