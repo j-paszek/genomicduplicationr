@@ -82,6 +82,7 @@ class Node:
         self.src=tup            
         self.parent=par
 
+
         if self.parent:
             self.height=self.parent.height+1
         else: self.height=0
@@ -170,6 +171,8 @@ class Node:
 class Tree:
     def __init__(self,tup):
         self.srclist=None
+        Tree.treenum+=1
+        self.treenum=Tree.treenum
         #print type(tup),tup
         if type(tup)==list:
             self.srclist=tup
@@ -178,9 +181,11 @@ class Tree:
 
         self.root=Node(tup,None)
         self.nodes=self.root.nodes()
+
         for i,n in enumerate(self.nodes): 
             n.num=i
             n.artificial=False
+            n.treenum=self.treenum
         self.src=tup
 
         if self.srclist:
@@ -189,7 +194,7 @@ class Tree:
                 #print "!",l
                 l.artificial=True
                 l=l.l
-        
+
     def leaves(self):
         return self.root.leaves()
 
@@ -252,4 +257,6 @@ class Tree:
 
 
 
+        
+Tree.treenum=0
         
