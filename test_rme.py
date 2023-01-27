@@ -34,7 +34,7 @@ def test_mer(inf,model,res):
         elif model==ModLCA:
             rme.genLCAIntervals(gt,st)
 
-    out = rme.mer(gtrees,st)
+    out = rme.rme(gtrees, st)
     assert out == res
 
 

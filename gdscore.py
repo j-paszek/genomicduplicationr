@@ -1,7 +1,8 @@
 import sys
 import argparse
-from iomod import readintervalfile
-from rme import readgtreefile, genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, savegsi,ppscores,mer,merfellows
+from iomod import readintervalfile, savegsi
+from rme import readgtreefile, genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, rme
+from rme_fhs import ppscores, merfellows
 from treeop import Tree, str2tree
 
 MOD_LCA = 1                  # LCA model
@@ -11,8 +12,7 @@ MOD_FELLOWS = 4              # FHS model Fellows et al.
 
 def main():
     # global variables to set from input parameters
-    global verbose, printstreewithscores, delnodes
-    verbose = ""
+    printstreewithscores = delnodes = verbose = ""
     gt = st = None
     gtrees = []
     gtreefile = None
@@ -117,7 +117,7 @@ def main():
             genLCAIntervals(gt, st)
 
     if model == MOD_FELLOWS:
-        merfellows(gtrees, st)
+        merfellows(gtrees, st, verbose, printstreewithscores)
         sys.exit(0)
 
     if outputfile:
@@ -130,7 +130,7 @@ def main():
                     print("Interval for %d in tree%d:" % (g.num, i), g, g.interval)
 
     if runmer:
-        me = mer(gtrees, st)
+        me = rme(gtrees, st, verbose)
         if printstreewithscores:
             print("&s", ppscores(st))
         else:

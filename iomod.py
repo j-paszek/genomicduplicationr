@@ -1,6 +1,5 @@
 from treeop import Tree, str2tree
 
-verbose = ""
 
 def readintervalfile(filename):
     t = [l.strip() for l in open(filename, "r").readlines() if len(l.strip()) and l.strip()[0] != '#']
@@ -15,8 +14,6 @@ def readintervalfile(filename):
     gtrees = []
 
     for i in range(gtnum):
-        if verbose == 3:
-            print("Processing line ", t[i + offset])
         gtrees.append(Tree(str2tree(t[i + offset])))
     st = Tree(str2tree(t[i + 1 + offset]))
 
@@ -55,3 +52,26 @@ def readintervalfile(filename):
         g.setinterval(s, l)
 
     return gtrees, st
+
+
+def savegsi(gtrees, st, outputfile):
+    f = open(outputfile, "w")
+    f.write("%d\n" % len(gtrees))
+    for gt in gtrees:
+        f.write(str(gt) + "\n")
+
+    f.write("\n#Species tree\n" + str(st) + "\n\n")
+
+    for n in st.root.nodes():
+        f.write("#%d %s\n" % (n.num, n))
+
+    for i, gt in enumerate(gtrees):
+        f.write("\n")
+        f.write("#"*10)
+        f.write(" Tree nr %d\n" % i)
+        for g in gt.root.nodes():
+            if g.interval:
+                f.write("#%d %s\n" % (g.num, g))
+                f.write("%d;%d;%d;%d\n" % (i, g.num, g.interval[0].num, g.interval[1].num))
+    f.close()
+    print("File %s saved" % outputfile)
