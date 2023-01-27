@@ -3,6 +3,7 @@ import argparse
 from iomod import readintervalfile, savegsi
 from rme import readgtreefile, genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, rme
 from rme_fhs import ppscores, merfellows
+from rec import rec
 from treeop import Tree, str2tree
 
 MOD_LCA = 1                  # LCA model
@@ -54,6 +55,8 @@ def main():
                              "trees) which are ancestor of some duplication.")
     parser.add_argument("-t", "--showgtheights", action="store_const", const=1, default=0,
                         help="for each gene tree print its height")
+    parser.add_argument("-e", "--computeECscore", action="store_const", const=1, default=0,
+                        help="to compute EC score instead of ME score")
 
     args = parser.parse_args()
     printstreewithscores = args.printtreewithscores  # by default we do not print tree with scores
@@ -134,6 +137,11 @@ def main():
             for g in gt.root.nodes():
                 if g.interval:
                     print("Interval for %d in tree%d:" % (g.num, i), g, g.interval)
+
+    if args.computeECscore:
+        ec = rec(gtrees, st)
+        print("EC score", ec)
+        sys.exit(0)
 
     if runmer:
         me = rme(gtrees, st, verbose)
