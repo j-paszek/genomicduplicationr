@@ -10,10 +10,10 @@ MOD_GUIGO = 2                # GMS model Guigo et al.
 MOD_PASZEKGORECKI = 3        # PG model
 MOD_FELLOWS = 4              # FHS model Fellows et al.
 
+
 def main():
-    # global variables to set from input parameters
-    printstreewithscores = delnodes = verbose = ""
-    gt = st = None
+    verbose = ""
+    st = None
     gtrees = []
     gtreefile = None
     outputfile = None
@@ -41,11 +41,17 @@ def main():
     parser.add_argument("-O", "--outfile", type=str, nargs="?",
                         help="-O FILE write detailed output to user defined output file")
     parser.add_argument("-j", "--selection", type=str, nargs="?",
-                        help=" -j NUMTREE,LEN - skip first NUMTREE trees and take next LEN trees; missing LEN=all trees")
+                        help=" -j NUMTREE,LEN - skip first NUMTREE trees and take next LEN trees;"
+                             " missing LEN=all trees")
     parser.add_argument("-d", "--delnodes", type=str, nargs="?",
                         help=" -d STRING      - list of node numbers to delete from SPEC and convert into duplications")
     parser.add_argument("-v", "--verbose", type=str, nargs="?",
-                        help="(default) print ME score only; debug 0 - input/output; 1 - upper, lower bounds for ME score; 2 - detailed Alg.2 debug; 3 - Alg.3 debug; 4 - skipped scores;5 - print nodes from SPEC; 6 - more Alg.3 details; 7 - print size of SPEC and stops if > 22; 8 - print node number for species tree and speciations from SPEC; where SPEC is a set of all lca-speciation nodes (from input gene trees) which are ancestor of some duplication.")
+                        help="(default) print ME score only; debug 0 - input/output; 1 - upper, lower bounds for "
+                             "ME score; 2 - detailed Alg.2 debug; 3 - Alg.3 debug; 4 - skipped scores;"
+                             "5 - print nodes from SPEC; 6 - more Alg.3 details; "
+                             "7 - print size of SPEC and stops if > 22; 8 - print node number for species tree and "
+                             "speciations from SPEC; where SPEC is a set of all lca-speciation nodes (from input gene "
+                             "trees) which are ancestor of some duplication.")
     parser.add_argument("-t", "--showgtheights", action="store_const", const=1, default=0,
                         help="for each gene tree print its height")
 
