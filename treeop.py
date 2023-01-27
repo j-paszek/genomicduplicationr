@@ -1,5 +1,3 @@
-import sys
-
 def leaf(s): return type(s)==str
 def comparable(a,b): set(a).intersection(set(b))
 def num(c): return ordext(c)

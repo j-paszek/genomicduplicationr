@@ -1,7 +1,7 @@
 import sys
 import argparse
-from iomod import readintervalfile, savegsi
-from rme import readgtreefile, genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, rme
+from iomod import readintervalfile, savegsi, readgtreefile
+from rme import genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, genFHSIntervals, rme
 from rme_fhs import ppscores, merfellows
 from rec import rec
 from treeop import Tree, str2tree
@@ -125,6 +125,14 @@ def main():
         elif model == MOD_LCA:
             genLCAIntervals(gt, st)
 
+    if args.computeECscore:
+        if model == MOD_FELLOWS:  # creates intervals for all nodes
+            for gt in gtrees:
+                genFHSIntervals(gt, st)
+        ec = rec(gtrees, st)
+        print("EC score", ec)
+        sys.exit(0)
+
     if model == MOD_FELLOWS:
         merfellows(gtrees, st, verbose, printstreewithscores)
         sys.exit(0)
@@ -137,11 +145,6 @@ def main():
             for g in gt.root.nodes():
                 if g.interval:
                     print("Interval for %d in tree%d:" % (g.num, i), g, g.interval)
-
-    if args.computeECscore:
-        ec = rec(gtrees, st)
-        print("EC score", ec)
-        sys.exit(0)
 
     if runmer:
         me = rme(gtrees, st, verbose)

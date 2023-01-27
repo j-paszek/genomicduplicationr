@@ -1,4 +1,3 @@
-from treeop import Tree, str2tree
 import itertools
 
 
@@ -205,6 +204,15 @@ def genLCAIntervals(gt, st):
             n.interval = [n.lcamap, n.lcamap]
 
 
+def genFHSIntervals(gt, st):
+    for n in gt.nodes:
+        n.interval = None
+        if n.leaf():
+            continue
+        if n.lcamap == n.l.lcamap or n.lcamap == n.r.lcamap:
+            n.interval = [n.lcamap, st.root]
+
+
 def genPaszekGoreckiIntervals(gt, st):
     for n in gt.nodes:
         n.interval = None
@@ -322,12 +330,3 @@ table=[20,4]
 """ % (i, gt, st))
 
     f.close()
-
-    
-def readgtreefile(gtreefile):
-    gtrees = []
-    for g in open(gtreefile).readlines():
-        if g and g[0] != "#":
-            gtrees.append(Tree(str2tree(g.strip())))
-
-    return gtrees

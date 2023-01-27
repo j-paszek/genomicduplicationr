@@ -75,3 +75,12 @@ def savegsi(gtrees, st, outputfile):
                 f.write("%d;%d;%d;%d\n" % (i, g.num, g.interval[0].num, g.interval[1].num))
     f.close()
     print("File %s saved" % outputfile)
+
+
+def readgtreefile(gtreefile):
+    gtrees = []
+    for g in open(gtreefile).readlines():
+        if g and g[0] != "#":
+            gtrees.append(Tree(str2tree(g.strip())))
+
+    return gtrees
