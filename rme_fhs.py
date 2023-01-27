@@ -303,28 +303,33 @@ marksize=1.0
         if first:
             m = mescore = rme(gtrees, st, verbose)
             first = 0
-            print("Current score", m)
+            if verbose.find("1") != -1:
+                print("Current score", m)
         else:
             m = meropt(gtrees, st, mescore, verbose)
         if m > -1:
             if verbose.find("4") != -1:
                 print("%d. MEcurrent" % cnt, m, mescore)
             if mescore > m:
-                oldverbose, verbose = verbose, 1
-                print("*"*80)
-                print(cnt, "REPEATED OPTIMAL COMP FOR ", m)
+                if verbose.find("1") != -1:
+                    oldverbose, verbose = verbose, ""
+                    print("*"*80)
+                    print(cnt, "REPEATED OPTIMAL COMP FOR ", m)
                 meropt(gtrees, st, -1, verbose)
                 lastopt = ppscores(st)
-                print("*"*80)
-                verbose = oldverbose
-                print("Current score", m)
+                if verbose.find("1") != -1:
+                    print("*"*80)
+                    verbose = oldverbose
+                    print("Current score", m)
             mescore = min(mescore, m)
         cnt = cnt+1
-        if cnt % 1000 == 0:
-            print(cnt, "variants processed; current min", mescore, "last score", m)
+        if verbose.find("1") != -1:
+            if cnt % 1000 == 0:
+                print(cnt, "variants processed; current min", mescore, "last score", m)
         # if cnt==5000: quit()
     if printstreewithscores:
         print("&s", lastopt)
     else:
-        print("MEscore", mescore)
+        if verbose.find("1") != -1:
+            print("MEscore", mescore)
     return mescore

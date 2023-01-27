@@ -116,7 +116,7 @@ def main():
         for gt in gtrees:
             gt.set_lca_mapping(st)  # changed to embretnet variant
 
-    # generates intervals according to choosen model
+    # generates intervals according to chosen model
     for gt in gtrees:
         if model == MOD_PASZEKGORECKI:
             genPaszekGoreckiIntervals(gt, st)
@@ -134,7 +134,8 @@ def main():
         sys.exit(0)
 
     if model == MOD_FELLOWS:
-        merfellows(gtrees, st, verbose, printstreewithscores)
+        me = merfellows(gtrees, st, verbose, printstreewithscores)
+        print("MEscore", me)
         sys.exit(0)
 
     if outputfile:
