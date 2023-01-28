@@ -1,7 +1,7 @@
 import pytest
-from iomod import readgtreefile, readintervalfile
-from rme import genFHSIntervals, genLCAIntervals, genGMSIntervals, genPaszekGoreckiIntervals
-from rec import rec
+from genomicduplicationr.iomod import readgtreefile, readintervalfile
+from genomicduplicationr.rme import genFHSIntervals, genLCAIntervals, genGMSIntervals, genPaszekGoreckiIntervals
+from genomicduplicationr.rec import rec
 
 MOD_LCA = 1  # LCA model
 MOD_GUIGO = 2  # GMS model Guigo et al.
