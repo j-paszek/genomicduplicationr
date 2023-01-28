@@ -65,7 +65,7 @@ def str2tree(s):
     if not s.strip():
         print("Warning: empty string")
         return []
-    return _st(s, 0)[0]
+    return _st(s.replace(" ", ""), 0)[0]
 
 
 def node2label(n):

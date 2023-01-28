@@ -17,6 +17,7 @@ def main():
     st = None
     gtrees = []
     gtreefile = None
+    streefile = None
     outputfile = None
     # parse command line options
     parser = argparse.ArgumentParser()
@@ -38,7 +39,8 @@ def main():
     parser.add_argument("-g", "--gtree", type=str, nargs="?", help="-g TREE to define input gene tree")
     parser.add_argument("-p", "--ptree", type=str, nargs="?",
                         help="-p 'TREE TREE' to give pair gene tree, species tree")
-    parser.add_argument("-m", "--gtfile", type=str, nargs="?", help="-m FILE defines a set of gene trees")
+    parser.add_argument("-m", "--gtfile", type=str, nargs="?", help="-m FILE defines a set of gene trees in a file")
+    parser.add_argument("-n", "--stfile", type=str, nargs="?", help="-n FILE defines a species tree from a file")
     parser.add_argument("-O", "--outfile", type=str, nargs="?",
                         help="-O FILE write detailed output to user defined output file")
     parser.add_argument("-j", "--selection", type=str, nargs="?",
@@ -75,6 +77,8 @@ def main():
         st = Tree(str2tree(stree))
     if args.gtfile:
         gtreefile = args.gtfile
+    if args.stfile:
+        streefile = args.stfile
     if args.outfile:
         outputfile = args.outfile
     firstgtrees = -1
@@ -92,6 +96,10 @@ def main():
 
     if gtreefile:  # gene trees are given in a separate file, -m option
         gtrees.extend(readgtreefile(gtreefile))
+    if streefile:
+        treelist = readgtreefile(streefile)
+        if treelist:
+            st = treelist[0]
     if args.input_file:
         gtrees, st = readintervalfile(args.input_file)  # gene trees and species tree obtained from input file
     if args.showgtheights:

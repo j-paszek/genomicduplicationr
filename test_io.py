@@ -1,11 +1,17 @@
 import pytest
-from iomod import readintervalfile
+from iomod import readintervalfile, readgtreefile
 
 
 # Test works on input files stored in data/ that consist of gene trees and a species tree
 # The files are loades, trees are generated and first gene tree and a species tree
 # are converted back to string and compared with a corresponding part of an input file
 infiles = ["data/RME/in.txt", "data/RME/in1.txt", "data/RME/in2.txt"]
+inrecfiles = ["data/REC/guigo/g.txt", "data/REC/guigo/s1.txt",
+              "data/REC/treefam/g.txt", "data/REC/treefam/s.txt"]
+# ! NOTE ! : input gene trees mismatch for treefam in REC and RME
+# the treefam from RME (data/RME/in2.txt)           - has 1274 trees; 1205 unique;
+# the treefam from REC (data/REC/treefam/g.txt)     - has 1274 trees; 1206 unique; (838 trees match)
+
 
 st1 = "(prot,(fung,((chlo,embr),(arth,((acoe,anne),(echi,(chon,(oste,(amph,(moll,((mamm,(aves,rept)),agna)))))))))))"
 st2 = "(fung,(prot,((chlo,embr),((acoe,(arth,(anne,moll))),(echi,((agna,(chon,oste)),(amph,(mamm,(aves,rept)))))))))"
@@ -27,3 +33,24 @@ def test_readintervalfile(infile, tgt, tst):
     gtrees, st = readintervalfile(infile)
     assert str(gtrees[0]) == tgt
     assert str(st) == tst
+
+
+@pytest.mark.parametrize("inf_all,inf_gt,inf_st", [(infiles[0], inrecfiles[0], inrecfiles[1])])
+def test_variuos_inputs(inf_all, inf_gt, inf_st):
+    gtrees, st = readintervalfile(inf_all)
+    gts = readgtreefile(inf_gt)
+    st1 = readgtreefile(inf_st)
+
+    for i in range(len(gtrees)):
+        assert str(gtrees[i]) == str(gts[i])
+    assert str(st) == str(st1[0])
+
+
+@pytest.mark.parametrize("inf_all,inf_gt,inf_st", [(infiles[2], inrecfiles[2], inrecfiles[3])])
+def test_variuos_inputs_tf(inf_all, inf_gt, inf_st):
+    gtrees, st = readintervalfile(inf_all)
+    gts = readgtreefile(inf_gt)
+    st1 = readgtreefile(inf_st)
+
+    assert len(gtrees) == len(gts)
+    assert str(st) == str(st1[0])
