@@ -1,10 +1,10 @@
 import sys
 import argparse
-from iomod import readintervalfile, savegsi, readgtreefile
-from rme import genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, genFHSIntervals, rme
-from rme_fhs import ppscores, merfellows
-from rec import rec
-from treeop import Tree, str2tree
+from genomicduplicationr.iomod import readintervalfile, savegsi, readgtreefile
+from genomicduplicationr.rme import genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, genFHSIntervals, rme
+from genomicduplicationr.rme_fhs import ppscores, merfellows
+from genomicduplicationr.rec import rec
+from genomicduplicationr.treeop import Tree, str2tree
 
 MOD_LCA = 1                  # LCA model
 MOD_GUIGO = 2                # GMS model Guigo et al.
