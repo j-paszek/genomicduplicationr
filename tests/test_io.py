@@ -1,12 +1,11 @@
 import pytest
 from genomicduplicationr import iomod
+from tests.config import ALL_INFILES
 
 # Test works on input files stored in data/ that consist of gene trees and a species tree
 # The files are loades, trees are generated and first gene tree and a species tree
 # are converted back to string and compared with a corresponding part of an input file
-infiles = ["data/RME/in.txt", "data/RME/in1.txt", "data/RME/in2.txt"]
-inrecfiles = ["data/REC/guigo/g.txt", "data/REC/guigo/s1.txt",
-              "data/REC/treefam/g.txt", "data/REC/treefam/s.txt"]
+
 # ! NOTE ! : input gene trees mismatch for treefam in REC and RME
 # the treefam from RME (data/RME/in2.txt)           - has 1274 trees; 1205 unique;
 # the treefam from REC (data/REC/treefam/g.txt)     - has 1274 trees; 1206 unique; (838 trees match)
@@ -25,16 +24,16 @@ st3 = "((((((((AEDAE,ANOGA),(DROME,DROPS)),APIME),SCHMA),(((((((BOVIN,CANFA),(((
       "MONDO),CHICK),XENTR),(BRARE,((TETNG,FUGRU),(ORYLA,GASAC)))),CIOIN)),(CAEBR,CAEEL)),(YEAST,SCHPO)),(ARATH,ORYSA))"
 
 
-@pytest.mark.parametrize("infile,tgt,tst", [(infiles[0], "(((aves,mamm),arth),prot)", st1),
-                                            (infiles[1], "(((aves,mamm),arth),prot)", st2),
-                                            (infiles[2], gt3, st3)])
+@pytest.mark.parametrize("infile,tgt,tst", [(ALL_INFILES[0], "(((aves,mamm),arth),prot)", st1),
+                                            (ALL_INFILES[1], "(((aves,mamm),arth),prot)", st2),
+                                            (ALL_INFILES[2], gt3, st3)])
 def test_readintervalfile(infile, tgt, tst):
     gtrees, st = iomod.readintervalfile(infile)
     assert str(gtrees[0]) == tgt
     assert str(st) == tst
 
 
-@pytest.mark.parametrize("inf_all,inf_gt,inf_st", [(infiles[0], inrecfiles[0], inrecfiles[1])])
+@pytest.mark.parametrize("inf_all,inf_gt,inf_st", [(ALL_INFILES[0], ALL_INFILES[3], ALL_INFILES[4])])
 def test_variuos_inputs(inf_all, inf_gt, inf_st):
     gtrees, st = iomod.readintervalfile(inf_all)
     gts = iomod.readgtreefile(inf_gt)
@@ -45,7 +44,7 @@ def test_variuos_inputs(inf_all, inf_gt, inf_st):
     assert str(st) == str(st1[0])
 
 
-@pytest.mark.parametrize("inf_all,inf_gt,inf_st", [(infiles[2], inrecfiles[2], inrecfiles[3])])
+@pytest.mark.parametrize("inf_all,inf_gt,inf_st", [(ALL_INFILES[2], ALL_INFILES[5], ALL_INFILES[6])])
 def test_variuos_inputs_tf(inf_all, inf_gt, inf_st):
     gtrees, st = iomod.readintervalfile(inf_all)
     gts = iomod.readgtreefile(inf_gt)

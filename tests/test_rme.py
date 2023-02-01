@@ -2,27 +2,23 @@ import pytest
 from genomicduplicationr.iomod import readintervalfile
 from genomicduplicationr.rme import genFHSIntervals, genLCAIntervals, genGMSIntervals, genPaszekGoreckiIntervals, rme
 from genomicduplicationr.rme_fhs import merfellows
+from tests.config import ALL_INFILES, MOD_LCA, MOD_GUIGO, MOD_PASZEKGORECKI
 
-MOD_LCA = 1  # LCA model
-MOD_GUIGO = 2  # GMS model Guigo et al.
-MOD_PASZEKGORECKI = 3  # PG model
-MOD_FELLOWS = 4  # FHS model Fellows et al.
-
-# Test corresponds to published results in
+# All tests correspond to results published in
 # Paszek, J., Gorecki, P., 2018. Efficient algorithms for genomic duplication models.
 # IEEE/ACM Trans. Comput. Biol. Bioinform. 15 (5), 1515-1524.
 # The results are presented in Figure 7 and in Figure 9
-infiles = ["data/RME/in.txt", "data/RME/in1.txt", "data/RME/in2.txt"]
+# Guigo dataset (st)    - ALL_INFILES[0] - REC score -  12,   7,   6,   4  for LCA, GMS, PG, FHS models
+# Guigo dataset (st1)   - ALL_INFILES[1] - REC score -   9,   5,   5,   4  for LCA, GMS, PG, FHS models
+# Treefam dataset       - ALL_INFILES[2] - REC score - 249, 243, 230       for LCA, GMS, PG      models
 
-
-# inf - input file from the selection above
+# inf - input files (see also description in config.py)
 # model - LCA, GMS, PG
 # res - published results
-
-
-@pytest.mark.parametrize("inf, model, res", [(infiles[0], 1, 12), (infiles[0], 2, 7), (infiles[0], 3, 6),
-                                             (infiles[1], 1, 9), (infiles[1], 2, 5), (infiles[1], 3, 5),
-                                             (infiles[2], 1, 249), (infiles[2], 2, 243), (infiles[2], 3, 230)])
+@pytest.mark.parametrize("inf, model, res",
+                         [(ALL_INFILES[0], 1, 12), (ALL_INFILES[0], 2, 7), (ALL_INFILES[0], 3, 6),
+                          (ALL_INFILES[1], 1, 9), (ALL_INFILES[1], 2, 5), (ALL_INFILES[1], 3, 5),
+                          (ALL_INFILES[2], 1, 249), (ALL_INFILES[2], 2, 243), (ALL_INFILES[2], 3, 230)])
 def test_rme(inf, model, res):
     gtrees, st = readintervalfile(inf)
 
@@ -43,7 +39,10 @@ def test_rme(inf, model, res):
     assert out == res
 
 
-@pytest.mark.parametrize("inf, res", [(infiles[0], 4), (infiles[1], 4)])
+# inf - input files (see also description in config.py)
+# model - FHS
+# res - published results
+@pytest.mark.parametrize("inf, res", [(ALL_INFILES[0], 4), (ALL_INFILES[1], 4)])
 def test_rme_fhs(inf, res):
     gtrees, st = readintervalfile(inf)
     for gt in gtrees:

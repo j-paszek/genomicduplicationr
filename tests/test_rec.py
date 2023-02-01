@@ -2,11 +2,7 @@ import pytest
 from genomicduplicationr.iomod import readgtreefile, readintervalfile
 from genomicduplicationr.rme import genFHSIntervals, genLCAIntervals, genGMSIntervals, genPaszekGoreckiIntervals
 from genomicduplicationr.rec import rec
-
-MOD_LCA = 1  # LCA model
-MOD_GUIGO = 2  # GMS model Guigo et al.
-MOD_PASZEKGORECKI = 3  # PG model
-MOD_FELLOWS = 4  # FHS model Fellows et al.
+from tests.config import ALL_INFILES, MOD_LCA, MOD_GUIGO, MOD_PASZEKGORECKI
 
 # Test 1-4 corresponds to published results in
 # J. Paszek and P. Gorecki, “Genomic duplication problems for unrooted gene trees,”
@@ -16,23 +12,20 @@ MOD_FELLOWS = 4  # FHS model Fellows et al.
 #           the input gene trees reported in table 1 were rerooted. The details are described in the paper.
 #           To recreate the rootings use "algorithm2.sh" (see https://www.mimuw.edu.pl/~jpaszek/uec.php) or use
 #           attached files (in 'grootingssamplebeta.txt' are rerooted trees from corresponding file 'g.txt.)
-rrfiles = ["data/REC/guigo/grootingssamplebeta.txt", "data/REC/treefam/grootingssamplebeta.txt"]
-
-infiles = ["data/RME/in.txt", "data/RME/in1.txt", "data/RME/in2.txt"]
-inrecfiles = ["data/REC/guigo/g.txt", "data/REC/guigo/s1.txt",
-              "data/REC/treefam/g.txt", "data/REC/treefam/s.txt"]
 # Note (!)  the input data from treefam in REC and RME differs (see io tests)
+# Guigo dataset     - ALL_INFILES[7] (gtrees) ALL_INFILES[4] (st) - REC score -   5,  4  for GMS, PG  models
+# Treefam dataset   - ALL_INFILES[8] (gtrees) ALL_INFILES[6] (st) - REC score -  45, 45  for GMS, PG  models
 
 
-# inf - input file from the selection above
+# inf - input files (see also description in config.py)
 # model - LCA, GMS, PG
-# res - published results
+# res - results - first 4 tests correspond to published results; next - other tests based on not rerooted gene trees
 @pytest.mark.parametrize("inf1, inf2, model, res",
-                         [(rrfiles[0], inrecfiles[1], 2, 5), (rrfiles[0], inrecfiles[1], 3, 4),
-                          (rrfiles[1], inrecfiles[3], 2, 45), (rrfiles[1], inrecfiles[3], 3, 45),
-                          (inrecfiles[0], inrecfiles[1], 1, 7), (inrecfiles[0], inrecfiles[1], 2, 4),
-                          (inrecfiles[0], inrecfiles[1], 3, 4), (inrecfiles[2], inrecfiles[3], 1, 47),
-                          (inrecfiles[2], inrecfiles[3], 2, 46), (inrecfiles[2], inrecfiles[3], 3, 46)])
+                         [(ALL_INFILES[7], ALL_INFILES[4], 2, 5), (ALL_INFILES[7], ALL_INFILES[4], 3, 4),
+                          (ALL_INFILES[8], ALL_INFILES[6], 2, 45), (ALL_INFILES[8], ALL_INFILES[6], 3, 45),
+                          (ALL_INFILES[3], ALL_INFILES[4], 1, 7), (ALL_INFILES[3], ALL_INFILES[4], 2, 4),
+                          (ALL_INFILES[3], ALL_INFILES[4], 3, 4), (ALL_INFILES[5], ALL_INFILES[6], 1, 47),
+                          (ALL_INFILES[5], ALL_INFILES[6], 2, 46), (ALL_INFILES[5], ALL_INFILES[6], 3, 46)])
 def test_rec(inf1, inf2, model, res):
     st = None
     gtrees = []
@@ -58,10 +51,13 @@ def test_rec(inf1, inf2, model, res):
     assert out == res
 
 
+# inf - input files (see also description in config.py)
+# model - LCA, GMS, PG
+# res - results for RME files
 @pytest.mark.parametrize("inf, model, res",
-                         [(infiles[2], 1, 46), (infiles[2], 2, 45), (infiles[2], 3, 45),
-                          (infiles[1], 1, 6), (infiles[1], 2, 4), (infiles[1], 3, 4),
-                          (infiles[0], 1, 7), (infiles[0], 2, 4), (infiles[0], 3, 4)])
+                         [(ALL_INFILES[2], 1, 46), (ALL_INFILES[2], 2, 45), (ALL_INFILES[2], 3, 45),
+                          (ALL_INFILES[1], 1, 6), (ALL_INFILES[1], 2, 4), (ALL_INFILES[1], 3, 4),
+                          (ALL_INFILES[0], 1, 7), (ALL_INFILES[0], 2, 4), (ALL_INFILES[0], 3, 4)])
 def test_rec(inf, model, res):
     gtrees, st = readintervalfile(inf)
 
@@ -82,7 +78,10 @@ def test_rec(inf, model, res):
     assert out == res
 
 
-@pytest.mark.parametrize("inf, res", [(infiles[0], 1), (infiles[1], 1), (infiles[2], 1)])
+# inf - input files (see also description in config.py)
+# model - FHS
+# res - for unrestricted model all duplications should cluster in one
+@pytest.mark.parametrize("inf, res", [(ALL_INFILES[0], 1), (ALL_INFILES[1], 1), (ALL_INFILES[2], 1)])
 def test_rec_fhs(inf, res):
     gtrees, st = readintervalfile(inf)
     for gt in gtrees:
