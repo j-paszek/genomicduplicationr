@@ -14,7 +14,8 @@ Use program (-h for help) `gdscore -h`
 
 ### Sample usage
 
-Download sample input file `https://raw.githubusercontent.com/j-paszek/genomicduplicationr/main/tests/data/RME/in.txt`
+Download sample input file:   
+`https://raw.githubusercontent.com/j-paszek/genomicduplicationr/main/tests/data/RME/in.txt`
 
 Above file consists of a set of rooted binary gene trees and a rooted binary species tree.
 
