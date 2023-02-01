@@ -1,5 +1,18 @@
 # genomicduplicationr
+
+### Short description
 Cluster single gene duplications into genomic duplications for input rooted gene trees and a species tree.
+
+### Quick install
+Create virtual environment `python -m venv gd`
+
+Activate the environment `source gd/bin/activate`
+
+Install package `pip install git+https://github.com/j-paszek/genomicduplicationr.git`
+
+Use program (-h for help) `gdscore -h`
+
+### license
 
 [![CC BY 4.0][cc-by-shield]][cc-by]
 
