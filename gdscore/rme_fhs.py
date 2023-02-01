@@ -1,6 +1,6 @@
 import sys
 from itertools import combinations, chain
-from genomicduplicationr.rme import expandintervals, rme, meropt
+from gdscore.rme import expandintervals, rme, meropt
 
 
 def speciestreescore(n):

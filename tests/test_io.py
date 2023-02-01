@@ -1,5 +1,5 @@
 import pytest
-from genomicduplicationr import iomod
+from gdscore import iomod
 from tests.config import ALL_INFILES
 
 # Test works on input files stored in data/ that consist of gene trees and a species tree

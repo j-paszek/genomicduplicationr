@@ -1,7 +1,7 @@
 import pytest
-from genomicduplicationr.iomod import readintervalfile
-from genomicduplicationr.rme import genFHSIntervals, genLCAIntervals, genGMSIntervals, genPaszekGoreckiIntervals, rme
-from genomicduplicationr.rme_fhs import merfellows
+from gdscore.iomod import readintervalfile
+from gdscore.rme import genFHSIntervals, genLCAIntervals, genGMSIntervals, genPaszekGoreckiIntervals, rme
+from gdscore.rme_fhs import merfellows
 from tests.config import ALL_INFILES, MOD_LCA, MOD_GUIGO, MOD_PASZEKGORECKI
 
 # All tests correspond to results published in

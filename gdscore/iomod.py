@@ -1,4 +1,4 @@
-from genomicduplicationr.treeop import Tree, str2tree
+from gdscore.treeop import Tree, str2tree
 
 
 def readintervalfile(filename):

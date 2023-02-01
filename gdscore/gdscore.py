@@ -1,10 +1,10 @@
 import sys
 import argparse
-from genomicduplicationr.iomod import readintervalfile, savegsi, readgtreefile
-from genomicduplicationr.rme import genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, genFHSIntervals, rme
-from genomicduplicationr.rme_fhs import ppscores, merfellows
-from genomicduplicationr.rec import rec
-from genomicduplicationr.treeop import Tree, str2tree
+from gdscore.iomod import readintervalfile, savegsi, readgtreefile
+from gdscore.rme import genPaszekGoreckiIntervals, genLCAIntervals, genGMSIntervals, genFHSIntervals, rme
+from gdscore.rme_fhs import ppscores, merfellows
+from gdscore.rec import rec
+from gdscore.treeop import Tree, str2tree
 
 MOD_LCA = 1                  # LCA model
 MOD_GUIGO = 2                # GMS model Guigo et al.
@@ -143,7 +143,7 @@ def main():
 
     if model == MOD_FELLOWS:
         me = merfellows(gtrees, st, verbose, printstreewithscores)
-        print("MEscore", me)
+        print("ME score", me)
         sys.exit(0)
 
     if outputfile:
@@ -160,16 +160,9 @@ def main():
         if printstreewithscores:
             print("&s", ppscores(st))
         else:
-            print("MEscore", me)
+            print("ME score", me)
 
     return 0
-
-    #  FIXME removed support for model random and gsevol
-    #     elif model==ModRandom:  # czabarka - int. monotoniczne
-    #         genRandomIntervals(gt,st)
-    #
-    # if ppgsevol:
-    #     ppgsevoloutput(gtrees,st)
 
 
 if __name__ == "__main__":

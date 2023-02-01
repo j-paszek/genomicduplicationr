@@ -1,7 +1,7 @@
 import pytest
-from genomicduplicationr.iomod import readgtreefile, readintervalfile
-from genomicduplicationr.rme import genFHSIntervals, genLCAIntervals, genGMSIntervals, genPaszekGoreckiIntervals
-from genomicduplicationr.rec import rec
+from gdscore.iomod import readgtreefile, readintervalfile
+from gdscore.rme import genFHSIntervals, genLCAIntervals, genGMSIntervals, genPaszekGoreckiIntervals
+from gdscore.rec import rec
 from tests.config import ALL_INFILES, MOD_LCA, MOD_GUIGO, MOD_PASZEKGORECKI
 
 # Test 1-4 corresponds to published results in
