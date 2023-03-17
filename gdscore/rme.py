@@ -5,6 +5,21 @@ def rme(gtrees, st, verbose=""):
     return meropt(gtrees, st, -1, verbose)
 
 
+# return left child
+def get_left(n):
+    return n.l
+
+
+# return right child
+def get_right(n):
+    return n.r
+
+
+# returns True if there is no active child
+def child_no_active(g):
+    return not get_left(g).active and not get_right(g).active
+
+
 def meropt(gtrees, st, prevminscore, verbose):
     dup = []
     stnodespostorder = st.root.nodes()
@@ -36,7 +51,7 @@ def meropt(gtrees, st, prevminscore, verbose):
     tdup = [s for s in stnodespostorder if s.topinterval]
 
     # leaves of duplication forests
-    ldup = [g for g in gtnodespostorder if g.active and (g.leaf() or (not g.l.active and not g.r.active))]
+    ldup = [g for g in gtnodespostorder if g.active and (g.leaf() or (child_no_active(g)))]
 
     # Set B sets
     def setnearestt(n, t):
@@ -46,8 +61,8 @@ def meropt(gtrees, st, prevminscore, verbose):
         n.nearestt = t
         if n.leaf():
             return
-        setnearestt(n.l, t)
-        setnearestt(n.r, t)
+        setnearestt(get_left(n), t)
+        setnearestt(get_right(n), t)
 
     setnearestt(st.root, None)
 
@@ -72,10 +87,10 @@ def meropt(gtrees, st, prevminscore, verbose):
             return 1
         
         h1 = h2 = 0
-        if r.l.active:
-            h1 = travduproots(r.l)
-        if r.r.active:
-            h2 = travduproots(r.r)
+        if get_left(r).active:
+            h1 = travduproots(get_left(r))
+        if get_right(r).active:
+            h2 = travduproots(get_right(r))
         return 1+max(h1, h2)
 
     if verbose.find("1") != -1:
@@ -167,7 +182,7 @@ def meropt(gtrees, st, prevminscore, verbose):
 
         # processing bt candidates
         for c in cand:
-            if not c.l.active and not c.r.active:
+            if child_no_active(c):
                 if c.interval[0].nearestt.lca(t) == t:
                     if verbose.find("1") != -1:
                         print(" cand ", c, "moved to (parentt)", t.parentt)
@@ -195,12 +210,17 @@ def meropt(gtrees, st, prevminscore, verbose):
     return mescore
             
 
+# returns True if any of children of 'n' is mapped to the same location as 'n'
+def is_dup(n):
+    return n.lcamap == get_left(n).lcamap or n.lcamap == get_right(n).lcamap
+
+
 def genLCAIntervals(gt, st):
     for n in gt.nodes:
         n.interval = None
         if n.leaf():
             continue
-        if n.lcamap == n.l.lcamap or n.lcamap == n.r.lcamap:
+        if is_dup(n):
             n.interval = [n.lcamap, n.lcamap]
 
 
@@ -209,7 +229,7 @@ def genFHSIntervals(gt, st):
         n.interval = None
         if n.leaf():
             continue
-        if n.lcamap == n.l.lcamap or n.lcamap == n.r.lcamap:
+        if is_dup(n):
             n.interval = [n.lcamap, st.root]
 
 
@@ -218,7 +238,7 @@ def genPaszekGoreckiIntervals(gt, st):
         n.interval = None
         if n.leaf():
             continue
-        if n.lcamap == n.l.lcamap or n.lcamap == n.r.lcamap:
+        if is_dup(n):
             n.interval = [n.lcamap, None]
 
     expandintervals(gt, st)
@@ -244,7 +264,7 @@ def genGMSIntervals(gt, st):
         n.interval = None
         if n.leaf():
             continue
-        if n.lcamap == n.l.lcamap or n.lcamap == n.r.lcamap:
+        if is_dup(n):
             n.interval = [n.lcamap, None]
 
     for n in gt.nodes:
