@@ -114,10 +114,10 @@ class Node:
     def __repr__(self):
         return self.__str__()
 
-    def nodes(self):  # postorder
+    def get_nodes(self):  # postorder
         if self.leaf():
             return [self]
-        return self.l.nodes() + self.r.nodes() + [self]
+        return self.l.get_nodes() + self.r.get_nodes() + [self]
 
     def leaves(self):
         if self.leaf():
@@ -185,7 +185,7 @@ class Tree:
                 tup = (tup, t)
 
         self.root = Node(tup, None)
-        self.nodes = self.root.nodes()
+        self.nodes = self.root.get_nodes()
 
         for i, n in enumerate(self.nodes):
             n.num = i

@@ -5,6 +5,7 @@ from gdscore.rme import genPaszekGoreckiIntervals, genLCAIntervals, genGMSInterv
 from gdscore.rme_fhs import ppscores, merfellows
 from gdscore.rec import rec
 from gdscore.treeop import Tree, str2tree
+# from treeop_n import Tree, str2tree  # for embretnet
 
 MOD_LCA = 1                  # LCA model
 MOD_GUIGO = 2                # GMS model Guigo et al.
@@ -151,7 +152,7 @@ def main():
 
     if verbose.find("3") != -1:
         for i, gt in enumerate(gtrees):
-            for g in gt.root.nodes():
+            for g in gt.root.get_nodes():
                 if g.interval:
                     print("Interval for %d in tree%d:" % (g.num, i), g, g.interval)
 

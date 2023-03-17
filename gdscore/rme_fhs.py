@@ -1,13 +1,13 @@
 import sys
 from itertools import combinations, chain
-from gdscore.rme import expandintervals, rme, meropt
+from gdscore.rme import expandintervals, rme, meropt, get_left, get_right, is_dup
 
 
 def speciestreescore(n):
     if n.leaf():
         s = n.clusterleaf
     else:
-        s = "(" + speciestreescore(n.r) + "," + speciestreescore(n.l) + ")"
+        s = "(" + speciestreescore(n.r) + "," + speciestreescore(get_left(n)) + ")"
     if n.scorek > 0:
         s = s + " k=%d " % n.scorek
     return s
@@ -26,16 +26,16 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
     lastopt = ''
     if verbose.find("4") != -1:
         print("@ Debug of Fellows model")
-    specnodes = [n for g in gtrees for n in g.root.nodes()
-                 if not n.leaf() and (n.lcamap != n.l.lcamap and n.lcamap != n.r.lcamap)]
+    specnodes = [n for g in gtrees for n in g.root.get_nodes()
+                 if not n.leaf() and (n.lcamap != get_left(n).lcamap and n.lcamap != get_right(n).lcamap)]
     if verbose.find("4") != -1:
         print("@ Number all speciation nodes before preprocessing", len(specnodes))
 
     r = []
     for s in specnodes:
         hasdup = 0
-        for n in s.nodes():
-            if not n.leaf() and (n.lcamap == n.l.lcamap or n.lcamap == n.r.lcamap):
+        for n in s.get_nodes():
+            if not n.leaf() and (is_dup(n)):
                 hasdup = 1
                 break
         if hasdup:
@@ -79,12 +79,12 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
 
     for i, g in enumerate(gtrees):
         maxh = maxc = -1
-        for n in g.root.nodes():
+        for n in g.root.get_nodes():
             if n.leaf():
                 c = 0
         
                 while n:
-                    if not n.leaf() and (n.lcamap == n.l.lcamap or n.lcamap == n.r.lcamap):
+                    if not n.leaf() and (is_dup(n)):
                         c = c+1
                     n = n.parent
             if c > maxdup:
@@ -115,7 +115,7 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
             if t.leaf(): 
                 t.lf = 1
                 return
-            if t.lcamap == t.l.lcamap or t.lcamap == t.r.lcamap:
+            if is_dup(t):
                 t.lf = 0
                 t.lcamap.ds |= 1
             elif t in specnodes:
@@ -124,8 +124,8 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
             else:
                 t.lf = 1
             if not t.lf:
-                ptree(t.l)
-                ptree(t.r)
+                ptree(get_left(t))
+                ptree(get_right(t))
 
         def ppniceold(t, isst):  # up to two marks in S
             l = ''
@@ -133,7 +133,7 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
             if not isst:
                 if t.leaf(): 
                     return "lw=0.2 s=\"%s\" :0.0" % t.clusterleaf
-                if t.lcamap == t.l.lcamap or t.lcamap == t.r.lcamap:
+                if is_dup(t):
                     l = "mark=d%d nn=\"%d\"" % (t.lcamap.num, t.num)
                     dp = 1
                 if t in specnodes:
@@ -151,9 +151,9 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
                 x = ''
             
                 if t.lcamap.leaf() and dp == 1:
-                    if t.r.stheight > t.l.stheight:
-                        return "("+ppniceold(t.r, isst)+")"+l
-                    return "("+ppniceold(t.l, isst)+")"+l
+                    if get_right(t).stheight > get_left(t).stheight:
+                        return "("+ppniceold(get_right(t), isst)+")"+l
+                    return "("+ppniceold(get_left(l), isst)+")"+l
             else:                 
                 if t.ds == 3:
                     x = " mark=[d%d,s%d] " % (t.num, t.num)
@@ -168,11 +168,11 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
                 if t.leaf():
                     return x+" s=\"%s\"" % t.clusterleaf
                 # else: x=x+" s=\"!R!%d \""%(t.num)
-            if t.l.lf:
-                return "("+ppniceold(t.r, isst)+") "+l+x
-            elif t.r.lf: 
-                return "("+ppniceold(t.l, isst)+") "+l+x
-            return "("+ppniceold(t.l, isst)+","+ppniceold(t.r, isst)+") "+l+x
+            if get_left(t).lf:
+                return "("+ppniceold(get_right(t), isst)+") "+l+x
+            elif get_right(t).lf:
+                return "("+ppniceold(get_left(t), isst)+") "+l+x
+            return "("+ppniceold(get_left(t), isst)+","+ppniceold(get_right(t), isst)+") "+l+x
 
         def ppnice(t, isst):  # single mark in S
             l = ''
@@ -181,7 +181,7 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
             if not isst:
                 if t.leaf(): 
                     return "lw=0.2 s=\"%s\" :0.0" % t.clusterleaf
-                if t.lcamap == t.l.lcamap or t.lcamap == t.r.lcamap:
+                if is_dup(t):
                     l = "mark=d%d nn=\"%d\"" % (t.lcamap.num, t.num)
                     t.lcamap.ds |= 1
                     dp = 1
@@ -195,9 +195,9 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
                     
                 x = ''
                 if t.lcamap.leaf() and dp == 1:
-                    if t.r.stheight > t.l.stheight:
-                        return "("+ppnice(t.r, isst)+")"+l
-                    return "("+ppnice(t.l, isst)+")"+l
+                    if get_right(t).stheight > get_left(t).stheight:
+                        return "("+ppnice(get_right(t), isst)+")"+l
+                    return "("+ppnice(get_left(t), isst)+")"+l
             else:                 
                 if t.ds == 3:
                     x = " mark=[d%d,s%d] " % (t.num, t.num)
@@ -212,11 +212,11 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
                 if t.leaf():
                     return x+" s=\"%s\"" % t.clusterleaf
                 # else: x=x+" s=\"!R!%d \""%(t.num)
-            if t.l.lf:
-                return "("+ppnice(t.r, isst)+") "+l+x
-            elif t.r.lf: 
-                return "("+ppnice(t.l, isst)+") "+l+x
-            return "("+ppnice(t.l, isst)+","+ppnice(t.r, isst)+") "+l+x
+            if get_left(t).lf:
+                return "("+ppnice(get_right(t), isst)+") "+l+x
+            elif get_right(t).lf:
+                return "("+ppnice(get_left(t), isst)+") "+l+x
+            return "("+ppnice(get_left(t), isst)+","+ppnice(get_right(t), isst)+") "+l+x
         f = open("dup.gse", "w")
         f.write("""
 .run -dm
@@ -280,7 +280,7 @@ marksize=1.0
             for n in gt.nodes:
                 n.interval = None
                 if n.leaf(): continue
-                if n.lcamap == n.l.lcamap or n.lcamap == n.r.lcamap:
+                if is_dup(n):
                     n.interval = [n.lcamap, None]
 
         for n in s:

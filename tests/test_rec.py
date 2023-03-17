@@ -90,3 +90,25 @@ def test_rec_fhs(inf, res):
         genFHSIntervals(gt, st)
     out = rec(gtrees, st)
     assert out == res
+
+@pytest.mark.parametrize("inf, model, res",
+                         [(ALL_INFILES[9], 1, 2), (ALL_INFILES[9], 2, 1), (ALL_INFILES[9], 3, 1),
+                          (ALL_INFILES[10], 1, 2), (ALL_INFILES[10], 2, 1), (ALL_INFILES[10], 3, 1)])
+def test_rec(inf, model, res):
+    gtrees, st = readintervalfile(inf)
+
+    if model:
+        for gt in gtrees:
+            gt.set_lca_mapping(st)
+
+    # generates intervals according to chosen model
+    for gt in gtrees:
+        if model == MOD_PASZEKGORECKI:
+            genPaszekGoreckiIntervals(gt, st)
+        elif model == MOD_GUIGO:
+            genGMSIntervals(gt, st)
+        elif model == MOD_LCA:
+            genLCAIntervals(gt, st)
+
+    out = rec(gtrees, st)
+    assert out == res
