@@ -5,14 +5,24 @@ def rme(gtrees, st, verbose=""):
     return meropt(gtrees, st, -1, verbose)
 
 
+# return a sibling node
+def get_sibling(c):
+    if not c.parent:
+        return None
+    p = c.parent
+    if get_left(p) == c:
+        return get_right(p)
+    return get_left(p)
+
+
 # return left child
 def get_left(n):
-    return n.l
+    return n.l  # n.c[0]  # n.l
 
 
 # return right child
 def get_right(n):
-    return n.r
+    return n.r  # n.c[1]  # n.r
 
 
 # returns True if there is no active child
@@ -22,8 +32,8 @@ def child_no_active(g):
 
 def meropt(gtrees, st, prevminscore, verbose):
     dup = []
-    stnodespostorder = st.root.nodes()
-    gtnodespostorder = list(itertools.chain.from_iterable(gt.root.nodes() for gt in gtrees))
+    stnodespostorder = st.root.get_nodes()
+    gtnodespostorder = list(itertools.chain.from_iterable(gt.root.get_nodes() for gt in gtrees))
 
     for g in gtnodespostorder:
         g.active = bool(g.interval)
@@ -141,7 +151,7 @@ def meropt(gtrees, st, prevminscore, verbose):
                         break  # gene tree root
 
                     l.h = curk
-                    sib = l.sibling()
+                    sib = get_sibling(l)
                     l = l.parent
                     if verbose.find("1") != -1:
                         print("  checking", l, l.num if l else "")  # l.interval

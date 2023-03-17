@@ -25,6 +25,9 @@ ALL_INFILES = [
     #       (script version and 'urec' version - from sources from UEC publication materials)
     os.path.join(cur_dir, "REC", "guigo", "grootingssamplebeta.txt"),
     os.path.join(cur_dir, "REC", "treefam", "grootingssamplebeta.txt"),
+    # simple tests
+    os.path.join(cur_dir, "simple", "t1.txt"),
+    os.path.join(cur_dir, "simple", "t2.txt"),
     ]
 
 MOD_LCA = 1  # LCA model

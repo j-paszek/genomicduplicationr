@@ -4,8 +4,8 @@ import math
 
 def rec(gtrees, st):
     dup = []  # duplication nodes == nodes with defined interval
-    stnodespostorder = st.root.nodes()
-    gtnodespostorder = list(itertools.chain.from_iterable(gt.root.nodes() for gt in gtrees))
+    stnodespostorder = st.root.get_nodes()
+    gtnodespostorder = list(itertools.chain.from_iterable(gt.root.get_nodes() for gt in gtrees))
 
     # limit gene tree nodes only to duplications
     for g in gtnodespostorder:
@@ -48,5 +48,6 @@ def rec(gtrees, st):
     for s in stnodespostorder:
         if s.active:
             ec_score += 1
+            print(s)
 
     return ec_score

@@ -26,7 +26,7 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
     lastopt = ''
     if verbose.find("4") != -1:
         print("@ Debug of Fellows model")
-    specnodes = [n for g in gtrees for n in g.root.nodes()
+    specnodes = [n for g in gtrees for n in g.root.get_nodes()
                  if not n.leaf() and (n.lcamap != get_left(n).lcamap and n.lcamap != get_right(n).lcamap)]
     if verbose.find("4") != -1:
         print("@ Number all speciation nodes before preprocessing", len(specnodes))
@@ -34,7 +34,7 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
     r = []
     for s in specnodes:
         hasdup = 0
-        for n in s.nodes():
+        for n in s.get_nodes():
             if not n.leaf() and (is_dup(n)):
                 hasdup = 1
                 break
@@ -79,7 +79,7 @@ def merfellows(gtrees, st, verbose="", printstreewithscores=0):
 
     for i, g in enumerate(gtrees):
         maxh = maxc = -1
-        for n in g.root.nodes():
+        for n in g.root.get_nodes():
             if n.leaf():
                 c = 0
         

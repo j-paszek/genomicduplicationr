@@ -1,4 +1,5 @@
 from gdscore.treeop import Tree, str2tree
+# from treeop_n import Tree, str2tree  # for embretnet
 
 
 def readintervalfile(filename):
@@ -17,7 +18,7 @@ def readintervalfile(filename):
         gtrees.append(Tree(str2tree(t[i + offset])))
     st = Tree(str2tree(t[i + 1 + offset]))
 
-    stnodespostorder = st.root.nodes()
+    stnodespostorder = st.root.get_nodes()
 
     oldgtnum = -1
 
@@ -29,7 +30,7 @@ def readintervalfile(filename):
 
         if oldgtnum != gtnum:
             gt = gtrees[gtnum]
-            gtnodespostorder = gt.root.nodes()
+            gtnodespostorder = gt.root.get_nodes()
             oldgtnum = gtnum
 
         if gc[0].isdigit():
@@ -62,14 +63,14 @@ def savegsi(gtrees, st, outputfile):
 
     f.write("\n#Species tree\n" + str(st) + "\n\n")
 
-    for n in st.root.nodes():
+    for n in st.root.get_nodes():
         f.write("#%d %s\n" % (n.num, n))
 
     for i, gt in enumerate(gtrees):
         f.write("\n")
         f.write("#"*10)
         f.write(" Tree nr %d\n" % i)
-        for g in gt.root.nodes():
+        for g in gt.root.get_nodes():
             if g.interval:
                 f.write("#%d %s\n" % (g.num, g))
                 f.write("%d;%d;%d;%d\n" % (i, g.num, g.interval[0].num, g.interval[1].num))
